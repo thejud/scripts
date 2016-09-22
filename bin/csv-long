@@ -14,7 +14,7 @@ require 'text-table'
 def parse_args
   o = {}
   OptionParser.new do |opts|
-    opts.banner = "Usage: #{File.basename(__FILE__) [options]"
+    opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
     opts.on("-h", "--help", "Show help") do
      puts opts 
      exit

@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# set/clear iterm2 badge string
+
+require 'base64'
+
+msg = Base64.encode64(ARGV.join(" "))
+print "\e]1337;SetBadgeFormat=#{msg.chomp}\a"
