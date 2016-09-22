@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+# csv-long - display csv files in long format, one column per line
+# use --table/-t to display in a text table
+# use --unified/-u skip the blank line between sections
+
+require 'optparse'
+require 'csv'
+require 'text-table'
+
+########################################
+# FUNCTIONS
+########################################
+
+def parse_args
+  o = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename(__FILE__) [options]"
+    opts.on("-h", "--help", "Show help") do
+     puts opts 
+     exit
+    end
+    opts.on("-t", "--table", "display as table") do
+      o[:table] = true
+    end
+    opts.on("-u", "--unified", "no spaces between rows") do 
+      o[:unified] = true  
+    end
+    opts.on("-T", "--tab", "tab-separated fields") do 
+      o[:tabs] = true
+    end
+  end.parse!
+  return o
+end
+
+########################################
+# MAIN BODY
+########################################
+opts = parse_args()
+
+row = []
+if opts[:tabs]
+  rows = CSV.parse( ARGF.readlines.join(""), headers: true, return_headers: true, col_sep: "\t")
+else
+  rows = CSV.parse( ARGF.readlines.join(""), headers: true, return_headers: true)
+end
+headers = rows.headers
+out = []
+rows.each_with_index do |r, row_index|
+  next if row_index == 0
+  headers.each_with_index do |colname, i|
+    if opts[:table]
+      out.push( [colname, r[i] ])
+    else
+      puts "#{colname}\t#{r[i]}"
+    end
+  end
+  unless opts[:unified]
+    if opts[:table]
+      out.push( ["", ""] )
+    else
+      puts
+    end 
+  end
+end
+
+puts out.to_text_table if opts[:table]
