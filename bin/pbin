@@ -1,0 +1,8 @@
+# make pbcopy/paste file aware
+set -euo pipefail
+
+if [ $# -eq 1 ]; then
+  cat "$1" | pbcopy
+else
+  exec pbcopy "$*"
+fi

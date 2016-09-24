@@ -1,0 +1,11 @@
+#!/bin/bash 
+
+set -euo pipefail
+
+# make pbcopy/paste file aware
+
+if [ $# -eq 1 ]; then
+  pbpaste > "$1"
+else
+  pbpaste "$*"
+fi
