@@ -1,0 +1,216 @@
+execute pathogen#infect()
+
+" ruby fun
+:imap <S-CR>    <CR><CR>end<Esc>-cc
+
+:filetype on                 " determine file type
+:filetype plugin on          " honor settings in ~/.vim/ftplugin
+
+:set expandtab               " insert spaces instead of tabs
+:set shiftwidth=2
+:set tabstop=2               " 2 spaces per tab
+:set hidden                  " Allow to switch between windows when modified
+:set laststatus=2            " always show the status window
+:set autoindent
+:set showmatch               " Show matching parens, etc.
+:set ruler                   " show line/column in status bar
+
+:set pastetoggle=<F3>       " toggle paste mode on/off for text insert
+:set iskeyword+=:            " autocomplete perl modules with : in them
+
+:set scrolloff=20           " keep at least 20 lines from the bottom/top
+
+:set guifont=-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-koi8-r
+:set scrolloff=3             " scroll three lines from the edge of screen
+
+" toggle syntax hilighting with ;
+:nmap <silent> ; : if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+
+set nocompatible      " We're running Vim, not Vi!
+syntax on             " Enable syntax highlighting
+filetype on           " Enable filetype detection
+filetype indent on    " Enable filetype-specific indenting
+filetype plugin on    " Enable filetype-specific plugins
+
+
+" make autocompletion work like the shell
+:set wildmode=list:longest
+
+:map <F2> :set nohls!<CR>:set nohls?<CR>   " toggle search highlighting
+":map K !} fmt -72                        " wrap to 72 lines
+
+" CTRL-J and CTRL-K to switch buffers, minimizing opposite one
+:map <C-J> <C-W>j<C-W>_
+:map <C-K> <C-W>k<C-W>_
+
+:nnoremap <buffer> <silent> E :cfix <Enter>
+
+" use CTL-L to copy one word at a time.
+:imap <C-L> @@@<ESC>hhkywjl?@@@<CR>P/@@@<CR>3s
+
+
+" BEGIN PERL FUN
+" should move this to a file-type plugin
+:nnoremap <buffer> <silent> ,k :w<Enter>:!/usr/local/bin/perl -MVi::QuickFix -c %<Enter>
+" ,f to reformat text with the autoformat command
+:map ,f !perl -MText::Autoformat -e'autoformat' <CR>
+
+" !f to create a new function header 
+:map !f o<CR><ESC>43i#<ESC>yypo}<CR><ESC>kkkosub  {<ESC>hi
+
+" !F to create function header with pod
+:nnoremap !F :r /homes/jdagnall/docs/tmpl/perl_func<CR>V8j:s/FF/
+
+" !m to a add a mutator function + header with pod
+:nnoremap !m :r /homes/jdagnall/docs/tmpl/mutator<CR>V/^}<CR>:s/FF/
+
+" perltidy setup
+nnoremap <silent> _t mx:%!perltidy-config-dirtree -q<Enter>'x
+vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
+
+" perl -c 
+:nnoremap <buffer> <silent> _c :w<Enter>:!/usr/local/bin/perl -MVi::QuickFix -c %<Enter>
+:nnoremap <buffer> <silent> _e :cf <Enter>
+
+" use perldoc to get info on a function using the K key
+:set keywordprg=ri
+
+" END PERL FUN
+
+" use ,# and ,$ to comment/uncomment lines in vmode
+:vmap ,# :s/^/#/<CR>
+:vmap ,$ :s/^#//<CR>
+
+
+" map arrow keys to next and previous file
+:nmap <S-DOWN> :next<CR>
+:nmap <S-UP> :prev<CR>
+
+
+" read and and write block of text between vim sessions
+" Usage:
+" `from' session:
+"  ma
+"  move to end-of-block
+"  xww
+"
+" `to' session:
+"  move to where I want block inserted
+"   xrr
+" xv to view the paste buffer
+"
+" There are three buffers available, the default, xrr and xww
+" and then then /tmp/a and /tmp/b buffers:
+" xra xrb => /tmp/a
+" xwa xwb => /tmp/b
+"
+nmap xrr   :r /homes/jdagnall/.vimxfer<Enter>
+nmap xww   :'a,.w! /homes/jdagnall/.vimxfer<Enter>
+nmap xvv   :e /homes/$USER/.vimxfer<Enter>
+vmap xrr   c<esc>:r /homes/$USER/.vimxfer<Enter>
+vmap xww   :w! /homes/$USER/.vimxfer<Enter>
+
+nmap xra   :r /tmp/a<Enter>
+nmap xwa   :'a,.w! /tmp/a<Enter>
+nmap xva   :e /tmp/a<Enter>
+vmap xra   c<esc>:r /tmp/a<Enter>
+vmap xwa   :w! /tmp/a<Enter>
+
+nmap xrb   :r /tmp/b<Enter>
+nmap xwb   :'a,.w! /tmp/b<Enter>
+nmap xvb   :e /tmp/b<Enter>
+vmap xrb   c<esc>:r /tmp/a<Enter>
+vmap xwb   :w! /tmp/b<Enter>
+
+" page like a pager
+:nmap <Space> <PageDown>
+
+
+" map jj to <esc> in insert mode. Save your fingers. Turn it off
+" if you need to type jj for some reason...
+:imap jj <Esc>
+
+" don't expand tabs in makefile
+au FileType make :set noexpandtab
+
+" make tab semi-intelligent. Autocomplete at end of word
+inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+function! InsertTabWrapper()
+     let col = col('.') - 1
+     if !col || getline('.')[col - 1] !~ '\k'
+         return "\<tab>"
+     else
+         return "\<c-n>"
+     endif
+endfunction
+
+" After executing the following, you can search for a pattern then press F8 to fold misses. 
+:set foldexpr=getline(v:lnum)!~@/
+:nnoremap <F8> :set foldmethod=expr<CR><Bar>zM
+
+" don't join with double spaces
+:set nojoinspaces
+
+
+" open new splits in a more natural way
+set splitbelow
+set splitright
+
+
+"syntax checking
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+map <Leader>n :NERDTreeToggle<CR>
+
+
+" now set it up to change the status line based on mode
+if version >= 700
+  au InsertEnter * hi StatusLine  ctermbg=Black ctermfg=Green  gui=undercurl guisp=Magenta
+  au InsertLeave * hi StatusLine  ctermfg=LightGray ctermbg=Black gui=bold,reverse
+  hi statusline guibg=green ctermfg=LightGray ctermbg=Black gui=bold,reverse
+endif
+
+"au InsertEnter * call InsertStatuslineColor(v:insertmode)
+"au InsertLeave * hi statusline guibg=DarkGrey ctermfg=8 guifg=White ctermbg=15
+"
+"" default the statusline to green when entering Vim
+"hi statusline guibg=DarkGrey ctermfg=8 guifg=White ctermbg=15
+"
+
+"------------ whitespace highlighting ---------"
+" trailing whitespace highlighting
+:highlight ExtraWhitespace ctermbg=darkgreen guibg=lightgreen
+:au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+:au InsertLeave * match ExtraWhitespace /\s\+$/
+
+"" Show trailing whitespace and spaces before a tab:
+":match ExtraWhitespace /\s\+$\| \+\ze\t/
+"
+"" Show tabs that are not at the start of a line:
+":match ExtraWhitespace /[^\t]\zs\t\+/
+"
+"" Switch off :match highlighting.
+":match
+"
+"" Show leading whitespace that includes spaces, and trailing whitespace.
+":autocmd BufWinEnter * match ExtraWhitespace /^\s* \s*\|\s\+$/
+
+
+" map some common 3-way diff merge options. 
+noremap <Leader>d1 :diffget LOCAL<CR>
+noremap <Leader>d2 :diffget BASE<CR>
+noremap <Leader>d3 :diffget REMOTE<CR>
+
+
+" next and previous errors
+noremap <Leader>ej :lnext<CR>
+noremap <Leader>ek :lprev<CR>
+noremap <Leader>eo :lopen<CR>
+noremap <Leader>ec :lclose<CR>
