@@ -1,8 +1,12 @@
 execute pathogen#infect()
 
+set number
+
 " ruby fun
 :imap <S-CR>    <CR><CR>end<Esc>-cc
 
+filetype plugin indent on    " enable smart filetype detection
+:set mouse=a
 :filetype on                 " determine file type
 :filetype plugin on          " honor settings in ~/.vim/ftplugin
 
@@ -83,8 +87,9 @@ vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
 
 
 " map arrow keys to next and previous file
-:nmap <S-DOWN> :next<CR>
-:nmap <S-UP> :prev<CR>
+:nmap <DOWN> :next<CR>
+:nmap <UP> :prev<CR>
+
 
 
 " read and and write block of text between vim sessions
@@ -167,9 +172,6 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-map <Leader>n :NERDTreeToggle<CR>
-
-
 " now set it up to change the status line based on mode
 if version >= 700
   au InsertEnter * hi StatusLine  ctermbg=Black ctermfg=Green  gui=undercurl guisp=Magenta
@@ -203,10 +205,34 @@ endif
 ":autocmd BufWinEnter * match ExtraWhitespace /^\s* \s*\|\s\+$/
 
 
-" map some common 3-way diff merge options. 
+" map some common 3-way diff merge options.
 noremap <Leader>d1 :diffget LOCAL<CR>
 noremap <Leader>d2 :diffget BASE<CR>
 noremap <Leader>d3 :diffget REMOTE<CR>
+
+" ---------- numbering commands
+nnoremap <Leader>n :call NumberToggle()<cr>
+nnoremap <Leader>N :set nonumber<CR>:set norelativenumber<CR>
+"autocmd InsertEnter * :set number | set norelativenumber
+"autocmd InsertLeave * :set relativenumber
+
+" number toggle between relative and absolute
+function! NumberToggle()
+  if(&relativenumber == 1)
+    set norelativenumber
+    set number
+  else
+    set relativenumber
+  endif
+endfunc
+
+set pastetoggle=<leader>p
+
+" quick save commands
+nnoremap <leader>s :w<cr>
+inoremap <leader>s <C-c>:w<cr>
+
+map <Leader>t :NERDTreeToggle<CR>
 
 
 " next and previous errors
