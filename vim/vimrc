@@ -1,6 +1,11 @@
+set modelines=0
 execute pathogen#infect()
+set nocompatible      " We're running Vim, not Vi!
+
 
 set number
+set visualbell
+
 
 " ruby fun
 :imap <S-CR>    <CR><CR>end<Esc>-cc
@@ -30,13 +35,24 @@ filetype plugin indent on    " enable smart filetype detection
 " toggle syntax hilighting with ;
 :nmap <silent> ; : if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 
-set nocompatible      " We're running Vim, not Vi!
 syntax on             " Enable syntax highlighting
 filetype on           " Enable filetype detection
 filetype indent on    " Enable filetype-specific indenting
 filetype plugin on    " Enable filetype-specific plugins
 
+" regex handling. Make search work for normal regexes
+nnoremap / /\v
+vnoremap / /\v
 
+set ignorecase
+set smartcase
+
+" clean up trailing whitespace with \w
+nnoremap <leader>W :%s/\s\+$//<cr>:let @/=''<CR>
+
+
+
+set wildmenu          " show autocomplete commands
 " make autocompletion work like the shell
 :set wildmode=list:longest
 
@@ -59,7 +75,7 @@ filetype plugin on    " Enable filetype-specific plugins
 " ,f to reformat text with the autoformat command
 :map ,f !perl -MText::Autoformat -e'autoformat' <CR>
 
-" !f to create a new function header 
+" !f to create a new function header
 :map !f o<CR><ESC>43i#<ESC>yypo}<CR><ESC>kkkosub  {<ESC>hi
 
 " !F to create function header with pod
@@ -72,7 +88,7 @@ filetype plugin on    " Enable filetype-specific plugins
 nnoremap <silent> _t mx:%!perltidy-config-dirtree -q<Enter>'x
 vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
 
-" perl -c 
+" perl -c
 :nnoremap <buffer> <silent> _c :w<Enter>:!/usr/local/bin/perl -MVi::QuickFix -c %<Enter>
 :nnoremap <buffer> <silent> _e :cf <Enter>
 
@@ -149,7 +165,7 @@ function! InsertTabWrapper()
      endif
 endfunction
 
-" After executing the following, you can search for a pattern then press F8 to fold misses. 
+" After executing the following, you can search for a pattern then press F8 to fold misses.
 :set foldexpr=getline(v:lnum)!~@/
 :nnoremap <F8> :set foldmethod=expr<CR><Bar>zM
 
@@ -226,17 +242,27 @@ function! NumberToggle()
   endif
 endfunc
 
-set pastetoggle=<leader>p
+set pastetoggle=<leader>z
+
 
 " quick save commands
 nnoremap <leader>s :w<cr>
 inoremap <leader>s <C-c>:w<cr>
 
 map <Leader>t :NERDTreeToggle<CR>
-
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
 
 " next and previous errors
 noremap <Leader>ej :lnext<CR>
 noremap <Leader>ek :lprev<CR>
 noremap <Leader>eo :lopen<CR>
 noremap <Leader>ec :lclose<CR>
+
+" color scheme setup
+noremap <Leader>H :set cursorline! cursorcolumn!<CR>
+noremap <Leader>h :set cursorline!<CR>
+"colorscheme SummerFruit256
+colorscheme MayanSmoke
+set cursorline
+:hi CursorLine term=bold cterm=bold guibg=Grey20
