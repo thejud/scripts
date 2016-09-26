@@ -255,7 +255,7 @@ inoremap <leader>s <C-c>:w<cr>
 
 map <Leader>t :NERDTreeToggle<CR>
 " Align line-wise comment delimiters flush left instead of following code indentation
-let g:NERDDefaultAlign = 'left'
+let g:NERDDefaultAlign = 'start'
 
 " next and previous location bar entries (syntastic)
 noremap <Leader>ej :lnext<CR>
