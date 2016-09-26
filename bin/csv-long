@@ -16,16 +16,16 @@ def parse_args
   OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
     opts.on("-h", "--help", "Show help") do
-     puts opts 
+     puts opts
      exit
     end
     opts.on("-t", "--table", "display as table") do
       o[:table] = true
     end
-    opts.on("-u", "--unified", "no spaces between rows") do 
-      o[:unified] = true  
+    opts.on("-u", "--unified", "no spaces between rows") do
+      o[:unified] = true
     end
-    opts.on("-T", "--tab", "tab-separated fields") do 
+    opts.on("-T", "--tab", "tab-separated fields") do
       o[:tabs] = true
     end
   end.parse!
@@ -59,7 +59,7 @@ rows.each_with_index do |r, row_index|
       out.push( ["", ""] )
     else
       puts
-    end 
+    end
   end
 end
 
