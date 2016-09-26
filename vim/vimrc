@@ -249,9 +249,10 @@ set pastetoggle=<leader>z
 " BEGIN airline setup ------------
 let g:airline_theme='light'  " welcome to the light side
 
-if !exists('g:airline_symbols')
+if !exists('g:airline_symbols')  " define var so we don't error out below
   let g:airline_symbols = {}
-endif 
+endif
+
 " unicode symbols
 let g:airline_left_sep = '»'
 let g:airline_left_sep = '▶'
