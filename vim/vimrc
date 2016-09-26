@@ -6,6 +6,8 @@ set relativenumber
 set visualbell
 
 " ruby fun
+" quick enter for the ruby end block
+" this may be replaced by tpope/vim-endwise
 imap <Leader><CR>    <CR><CR>end<Esc>-cc
 imap kk    <CR><CR>end<Esc>-cc
 
