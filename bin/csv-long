@@ -37,7 +37,6 @@ end
 ########################################
 opts = parse_args()
 
-row = []
 if opts[:tabs]
   rows = CSV.parse( ARGF.readlines.join(""), headers: true, return_headers: true, col_sep: "\t")
 else
