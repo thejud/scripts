@@ -3,7 +3,7 @@ execute pathogen#infect()
 set nocompatible      " We're running Vim, not Vi!
 
 
-set number
+set relativenumber
 set visualbell
 
 
@@ -92,21 +92,20 @@ vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
 :nnoremap <buffer> <silent> _c :w<Enter>:!/usr/local/bin/perl -MVi::QuickFix -c %<Enter>
 :nnoremap <buffer> <silent> _e :cf <Enter>
 
-" use perldoc to get info on a function using the K key
-:set keywordprg=ri
-
 " END PERL FUN
+
 
 " use ,# and ,$ to comment/uncomment lines in vmode
 :vmap ,# :s/^/#/<CR>
 :vmap ,$ :s/^#//<CR>
 
+" RUBY FUN
+" use ri to get info on a function using the K key
+:set keywordprg=ri
 
 " map arrow keys to next and previous file
 :nmap <DOWN> :next<CR>
 :nmap <UP> :prev<CR>
-
-
 
 " read and and write block of text between vim sessions
 " Usage:
