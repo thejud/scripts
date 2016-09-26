@@ -1,6 +1,6 @@
-set modelines=0
-execute pathogen#infect()
+set modelines=0       " avoid security hole with running code on load
 set nocompatible      " We're running Vim, not Vi!
+execute pathogen#infect()
 
 set relativenumber
 set visualbell
