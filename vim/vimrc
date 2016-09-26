@@ -2,13 +2,12 @@ set modelines=0
 execute pathogen#infect()
 set nocompatible      " We're running Vim, not Vi!
 
-
 set relativenumber
 set visualbell
 
-
 " ruby fun
-:imap <S-CR>    <CR><CR>end<Esc>-cc
+imap <Leader><CR>    <CR><CR>end<Esc>-cc
+imap kk    <CR><CR>end<Esc>-cc
 
 filetype plugin indent on    " enable smart filetype detection
 :set mouse=a
@@ -24,13 +23,11 @@ filetype plugin indent on    " enable smart filetype detection
 :set showmatch               " Show matching parens, etc.
 :set ruler                   " show line/column in status bar
 
-:set pastetoggle=<F3>       " toggle paste mode on/off for text insert
 :set iskeyword+=:            " autocomplete perl modules with : in them
 
-:set scrolloff=20           " keep at least 20 lines from the bottom/top
+:set scrolloff=10           " keep at least 10 lines from the bottom/top
 
 :set guifont=-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-koi8-r
-:set scrolloff=3             " scroll three lines from the edge of screen
 
 " toggle syntax hilighting with ;
 :nmap <silent> ; : if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
@@ -81,10 +78,10 @@ set wildmenu          " show autocomplete commands
 :map !f o<CR><ESC>43i#<ESC>yypo}<CR><ESC>kkkosub  {<ESC>hi
 
 " !F to create function header with pod
-:nnoremap !F :r /homes/jdagnall/docs/tmpl/perl_func<CR>V8j:s/FF/
+:nnoremap !F :r ~/docs/tmpl/perl_func<CR>V8j:s/FF/
 
 " !m to a add a mutator function + header with pod
-:nnoremap !m :r /homes/jdagnall/docs/tmpl/mutator<CR>V/^}<CR>:s/FF/
+:nnoremap !m :r ~/docs/tmpl/mutator<CR>V/^}<CR>:s/FF/
 
 " perltidy setup
 nnoremap <silent> _t mx:%!perltidy-config-dirtree -q<Enter>'x
@@ -126,11 +123,11 @@ vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
 " xra xrb => /tmp/a
 " xwa xwb => /tmp/b
 "
-nmap xrr   :r /homes/jdagnall/.vimxfer<Enter>
-nmap xww   :'a,.w! /homes/jdagnall/.vimxfer<Enter>
-nmap xvv   :e /homes/$USER/.vimxfer<Enter>
+nmap xrr   :r ~/.vimxfer<Enter>
+nmap xww   :'a,.w! ~/.vimxfer<Enter>
+nmap xvv   :e ~/.vimxfer<Enter>
 vmap xrr   c<esc>:r /homes/$USER/.vimxfer<Enter>
-vmap xww   :w! /homes/$USER/.vimxfer<Enter>
+vmap xww   :w! ~/.vimxfer<Enter>
 
 nmap xra   :r /tmp/a<Enter>
 nmap xwa   :'a,.w! /tmp/a<Enter>
@@ -173,11 +170,9 @@ endfunction
 " don't join with double spaces
 :set nojoinspaces
 
-
 " open new splits in a more natural way
 set splitbelow
 set splitright
-
 
 "syntax checking
 "set statusline+=%#warningmsg#
@@ -231,7 +226,7 @@ noremap <Leader>d1 :diffget LOCAL<CR>
 noremap <Leader>d2 :diffget BASE<CR>
 noremap <Leader>d3 :diffget REMOTE<CR>
 
-" ---------- numbering commands
+" numbering commands ----------------------
 nnoremap <Leader>n :call NumberToggle()<cr>
 nnoremap <Leader>N :set nonumber<CR>:set norelativenumber<CR>
 "autocmd InsertEnter * :set number | set norelativenumber
@@ -260,7 +255,7 @@ map <Leader>t :NERDTreeToggle<CR>
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'left'
 
-" next and previous errors
+" next and previous location bar entries (syntastic)
 noremap <Leader>ej :lnext<CR>
 noremap <Leader>ek :lprev<CR>
 noremap <Leader>eo :lopen<CR>
@@ -269,7 +264,14 @@ noremap <Leader>ec :lclose<CR>
 " color scheme setup
 noremap <Leader>H :set cursorline! cursorcolumn!<CR>
 noremap <Leader>h :set cursorline!<CR>
-"colorscheme SummerFruit256
-colorscheme MayanSmoke
+
+" ============== COLOR ===============
+"
+" color scheme setup - this should be before
+" other color customizations
+
+"colorscheme MayanSmoke
+colorscheme SummerFruit256
+
 set cursorline
 :hi CursorLine term=bold cterm=bold guibg=Grey20
