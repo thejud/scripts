@@ -50,6 +50,8 @@ set smartcase
 " clean up trailing whitespace with \w
 nnoremap <leader>W :%s/\s\+$//<cr>:let @/=''<CR>
 
+" .md files should be markdown
+autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 
 
 set wildmenu          " show autocomplete commands
