@@ -189,6 +189,10 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
+nnoremap <Leader>yc :SyntasticCheck<CR>
+nnoremap <Leader>yt :SyntasticToggleMode<CR>
+
+
 " now set it up to change the status line based on mode
 if version >= 700
   au InsertEnter * hi StatusLine  ctermbg=Black ctermfg=Green  gui=undercurl guisp=Magenta
@@ -244,6 +248,8 @@ function! NumberToggle()
 endfunc
 
 set pastetoggle=<leader>z
+
+let g:airline_theme='light'  " welcome to the light side
 
 
 " quick save commands
