@@ -298,6 +298,12 @@ nnoremap <Leader>glf :silent! Glog -25<CR>:bot copen<CR>       "sane number of v
 nnoremap ]g :cnext<CR>zjzO<CR>  "navigate Gdiff versions with magic brackets +g
 nnoremap [g :cprev<CR>zjzO<CR>
 
+" fix gitv so that it opens with the diffs expanded.
+augroup git
+    au!
+    autocmd FileType git :setlocal nofoldenable
+augroup END
+
 " quick save commands
 nnoremap <leader>s :w<cr>
 inoremap <leader>s <C-c>:w<cr>
