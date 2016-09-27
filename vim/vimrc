@@ -8,8 +8,8 @@ set visualbell
 " ruby fun
 " quick enter for the ruby end block
 " this may be replaced by tpope/vim-endwise
-imap <Leader><CR>    <CR><CR>end<Esc>-cc
-imap kk    <CR><CR>end<Esc>-cc
+"imap <Leader><CR>    <CR><CR>end<Esc>-cc
+"imap kk    <CR><CR>end<Esc>-cc
 
 filetype plugin indent on    " enable smart filetype detection
 :set mouse=a
@@ -61,8 +61,12 @@ set wildmenu          " show autocomplete commands
 ":map K !} fmt -72                        " wrap to 72 lines
 
 " CTRL-J and CTRL-K to switch buffers, minimizing opposite one
-:map <C-J> <C-W>j<C-W>_
-:map <C-K> <C-W>k<C-W>_
+":map <C-J> <C-W>j<C-W>_
+":map <C-K> <C-W>k<C-W>_
+
+" CTRL-J and CTRL-K scroll down and up, with cursor in the center.
+map <C-J> jzz
+map <C-K> kzz
 
 :nnoremap <buffer> <silent> E :cfix <Enter>
 
