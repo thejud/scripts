@@ -290,6 +290,8 @@ nnoremap <Leader>gb :Git branch<Space>
 nnoremap <Leader>go :Git checkout<Space>
 nnoremap <Leader>gps :Dispatch! git push<CR>
 nnoremap <Leader>gpl :Dispatch! git pull<CR>
+nnoremap <Leader>gb :Dispatch! git rebase<CR>
+nnoremap <Leader>gf :Dispatch! git fetch<CR>
 
 nnoremap <Leader>gll :silent! Glog -25 -- %<CR>:bot copen<CR>  "sane number of versions, log patches
 nnoremap <Leader>glf :silent! Glog -25<CR>:bot copen<CR>       "sane number of versions, log files
