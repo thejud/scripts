@@ -295,8 +295,6 @@ nnoremap <Leader>gf :Dispatch! git fetch<CR>
 
 nnoremap <Leader>gll :silent! Glog -25 -- %<CR>:bot copen<CR>  "sane number of versions, log patches
 nnoremap <Leader>glf :silent! Glog -25<CR>:bot copen<CR>       "sane number of versions, log files
-nnoremap ]g :cnext<CR>zjzO<CR>  "navigate Gdiff versions with magic brackets +g
-nnoremap [g :cprev<CR>zjzO<CR>
 
 " fix gitv so that it opens with the diffs expanded.
 augroup git
