@@ -31,8 +31,8 @@ filetype plugin indent on    " enable smart filetype detection
 
 :set guifont=-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-koi8-r
 
-" toggle syntax hilighting with ;
-:nmap <silent> ; : if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+" toggle syntax hilighting with co;  another similar match to unimpaired
+:nmap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 
 syntax on             " Enable syntax highlighting
 filetype on           " Enable filetype detection
