@@ -2,6 +2,9 @@ set modelines=0       " avoid security hole with running code on load
 set nocompatible      " We're running Vim, not Vi!
 execute pathogen#infect()
 
+" map our prefix key to comma
+let mapleader = ','
+
 set relativenumber
 set visualbell
 
@@ -155,9 +158,6 @@ vmap xwb   :w! /tmp/b<Enter>
 " if you need to type jj for some reason...
 :imap jj <Esc>
 
-
-" F8 to toggle the tagbar
-nmap <F8> :TagbarToggle<CR>
 
 " don't expand tabs in makefile
 au FileType make :set noexpandtab
@@ -314,7 +314,13 @@ augroup END
 nnoremap <leader>s :w<cr>
 inoremap <leader>s <C-c>:w<cr>
 
-map <Leader>t :NERDTreeToggle<CR>
+map <Leader>tr :NERDTreeToggle<CR>
+
+" toggle the tagbar
+nmap <Leader>tt :TagbarOpenAutoClose<CR>
+nmap <Leader>tp :TagbarTogglePause<CR>
+
+
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'start'
 
