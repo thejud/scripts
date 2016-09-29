@@ -155,6 +155,10 @@ vmap xwb   :w! /tmp/b<Enter>
 " if you need to type jj for some reason...
 :imap jj <Esc>
 
+
+" F8 to toggle the tagbar
+nmap <F8> :TagbarToggle<CR>
+
 " don't expand tabs in makefile
 au FileType make :set noexpandtab
 
@@ -169,9 +173,9 @@ function! InsertTabWrapper()
      endif
 endfunction
 
-" After executing the following, you can search for a pattern then press F8 to fold misses.
-:set foldexpr=getline(v:lnum)!~@/
-:nnoremap <F8> :set foldmethod=expr<CR><Bar>zM
+" After executing the following, you can search for a pattern then press F7 to fold misses.
+":set foldexpr=getline(v:lnum)!~@/
+":nnoremap <F7> :set foldmethod=expr<CR><Bar>zM
 
 " don't join with double spaces
 :set nojoinspaces
@@ -284,7 +288,7 @@ nnoremap <Leader>ga :Git add %:p<CR><CR>
 nnoremap <Leader>gs :Gstatus<CR>
 nnoremap <Leader>gc :Gcommit -v -q<CR>
 nnoremap <Leader>gt :Gcommit -v -q %:p<CR>
-nnoremap <Leader>gd :Gdiff<CR>
+nnoremap <Leader>gd :Gvdiff<CR>
 nnoremap <Leader>ge :Gedit<CR>
 nnoremap <Leader>gr :Gread<CR>
 nnoremap <Leader>gw :Gwrite<CR><CR>
