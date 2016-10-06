@@ -180,6 +180,10 @@ endfunction
 " don't join with double spaces
 :set nojoinspaces
 
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+
 " open new splits in a more natural way
 set splitbelow
 set splitright
