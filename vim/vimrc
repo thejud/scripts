@@ -323,7 +323,15 @@ map <Leader>tr :NERDTreeToggle<CR>
 
 " toggle the tagbar
 nmap <Leader>tt :TagbarOpenAutoClose<CR>
+nmap <Leader>tT :TagbarToggle<CR>
 nmap <Leader>tp :TagbarTogglePause<CR>
+
+
+"CTRL-P bindings
+nmap <Leader>pb :CtrlPBuffer<CR>
+nmap <Leader>pt :CtrlPBufTag<CR>
+nmap <Leader>pf :CtrlP<CR>
+nmap <Leader>pm :CtrlPMRU<CR>
 
 
 " Align line-wise comment delimiters flush left instead of following code indentation
