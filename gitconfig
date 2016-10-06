@@ -1,8 +1,8 @@
 [include]
   path = .gitconfig.local
 [core]
-	editor = vim
-	excludesfile = ~/.gitignore
+  editor = vim
+  excludesfile = ~/.gitignore
 [alias]
     st = status -s
 
@@ -21,7 +21,7 @@
     ai = add --interactive
 
     co = checkout
-    br = branch 
+    br = branch
     #"!git branch -ra | grep -v done"
     bra = branch -ra
 
@@ -76,22 +76,22 @@
 
 
 [push]
-	default = simple
+  default = simple
 [difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+  path =
 [mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
+  cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+  trustExitCode = true
 [difftool "meld"]
-    trustExitCode = true
-    cmd = open -W -a Meld --args \"$LOCAL\" \"$PWD/$REMOTE\"
+  trustExitCode = true
+  cmd = open -W -a Meld --args \"$LOCAL\" \"$PWD/$REMOTE\"
 [mergetool "meld"]
-    trustExitCode = true
-    cmd = open -W -a Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
+  trustExitCode = true
+  cmd = open -W -a Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
 [rerere]
-	enabled = true
+  enabled = true
 [merge]
-	tool = vimdiff
+  tool = vimdiff
 [diff]
   tool = vimdiff
