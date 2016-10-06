@@ -72,7 +72,7 @@
     f = "!git ls-files | grep -i"
     lol = log --oneline --graph --decorate
 
-    up = !git fetch && git rebase
+    up = git pull --rebase
 
 
 [push]
