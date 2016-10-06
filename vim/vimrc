@@ -36,6 +36,7 @@ filetype plugin indent on    " enable smart filetype detection
 
 " toggle syntax hilighting with co;  another similar match to unimpaired
 :nmap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+:nmap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 
 syntax on             " Enable syntax highlighting
 filetype on           " Enable filetype detection
