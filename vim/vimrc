@@ -34,6 +34,8 @@ filetype plugin indent on    " enable smart filetype detection
 
 :set guifont=-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-koi8-r
 
+set hlsearch                 " highlight search matches. Combine with * for quick visual find
+
 " toggle syntax hilighting with co;  another similar match to unimpaired
 :nmap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 :nmap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
