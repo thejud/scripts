@@ -15,7 +15,7 @@ set visualbell
 "imap kk    <CR><CR>end<Esc>-cc
 
 filetype plugin indent on    " enable smart filetype detection
-:set mouse=a
+":set mouse=a               " no mouse, it's actually just annoying
 :filetype on                 " determine file type
 :filetype plugin on          " honor settings in ~/.vim/ftplugin
 
