@@ -34,6 +34,9 @@ filetype plugin indent on    " enable smart filetype detection
 
 :set guifont=-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-koi8-r
 
+" when using gf to jump to file under cursor, try with .rb extension
+set suffixesadd+=.rb        
+
 set hlsearch                 " highlight search matches. Combine with * for quick visual find
 
 " toggle syntax hilighting with co;  another similar match to unimpaired
@@ -262,7 +265,16 @@ function! NumberToggle()
   endif
 endfunc
 
+
+" Copy/paste improvement
+
 set pastetoggle=<leader>z
+
+" paste from the system clipboard, avoiding need to toggle paste mode
+noremap <Leader>pp "*p
+
+" copy to the system clipboard (the plus register)
+noremap <Leader>cc "*y
 
 " BEGIN airline setup ------------
 let g:airline_theme='light'  " welcome to the light side
@@ -299,6 +311,8 @@ nnoremap <Leader>gs :Gstatus<CR>
 nnoremap <Leader>gc :Gcommit -v -q<CR>
 nnoremap <Leader>gt :Gcommit -v -q %:p<CR>
 nnoremap <Leader>gd :Gvdiff<CR>
+"switch back to current file and closes fugitive buffer
+nnoremap <Leader>gD <c-w>h<c-w>c
 nnoremap <Leader>ge :Gedit<CR>
 nnoremap <Leader>gr :Gread<CR>
 nnoremap <Leader>gw :Gwrite<CR><CR>
