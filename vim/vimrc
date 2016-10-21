@@ -82,6 +82,11 @@ set wildmenu          " show autocomplete commands
 ":map <C-J> <C-W>j<C-W>_
 ":map <C-K> <C-W>k<C-W>_
 
+"window navigation for the top three windows, leader 1 2 3
+noremap <Leader>1  <C-w>t
+noremap <Leader>2  <C-w>t<C-w>l
+noremap <Leader>3  <C-w>t2<C-w>l
+
 " CTRL-J and CTRL-K scroll down and up, with cursor in the center.
 map <C-J> jzz
 map <C-K> kzz
@@ -119,8 +124,8 @@ vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
 
 
 " use ,# and ,$ to comment/uncomment lines in vmode
-:vmap ,# :s/^/#/<CR>
-:vmap ,$ :s/^#//<CR>
+:vmap <LEADER># :s/^/#/<CR>
+:vmap <LEADER>$ :s/^#//<CR>
 
 " RUBY FUN
 " use ri to get info on a function using the K key
@@ -178,15 +183,15 @@ vmap xwb   :w! /tmp/b<Enter>
 au FileType make :set noexpandtab
 
 " make tab semi-intelligent. Autocomplete at end of word
-inoremap <tab> <c-r>=InsertTabWrapper()<cr>
-function! InsertTabWrapper()
-     let col = col('.') - 1
-     if !col || getline('.')[col - 1] !~ '\k'
-         return "\<tab>"
-     else
-         return "\<c-n>"
-     endif
-endfunction
+"inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+"function! InsertTabWrapper()
+"     let col = col('.') - 1
+"     if !col || getline('.')[col - 1] !~ '\k'
+"         return "\<tab>"
+"     else
+"         return "\<c-n>"
+"     endif
+"endfunction
 
 " After executing the following, you can search for a pattern then press F7 to fold misses.
 ":set foldexpr=getline(v:lnum)!~@/
@@ -340,11 +345,13 @@ augroup git
     autocmd FileType git :setlocal nofoldenable
 augroup END
 
-" quick save commands
+" quick save commands, use Leader-s in normal and insert 
+" note that you can use CTRL-O Leader-s in paste mode
 nnoremap <leader>s :w<cr>
 inoremap <leader>s <C-c>:w<cr>
 
-map <Leader>tr :NERDTreeToggle<CR>
+nnoremap <Leader>tr :NERDTreeToggle<CR>
+nnoremap <Leader>tf :NERDTreeFind<CR>
 
 " toggle the tagbar
 nmap <Leader>tt :TagbarOpenAutoClose<CR>
@@ -352,23 +359,26 @@ nmap <Leader>tT :TagbarToggle<CR>
 nmap <Leader>tp :TagbarTogglePause<CR>
 
 
-"CTRL-P bindings
+"CTRL-P bindings, use p prefix
 nmap <Leader>pb :CtrlPBuffer<CR>
 nmap <Leader>pt :CtrlPBufTag<CR>
-nmap <Leader>pf :CtrlP<CR>
+nmap <Leader>pp :CtrlP<CR>
 nmap <Leader>pm :CtrlPMRU<CR>
+nmap <Leader>pr :CtrlPMRU<CR>
 
 
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'start'
 
 " next and previous location bar entries (syntastic)
+" TODO: unimpaired [q and ]q  are 
 noremap <Leader>ej :lnext<CR>
 noremap <Leader>ek :lprev<CR>
 noremap <Leader>eo :lopen<CR>
 noremap <Leader>ec :lclose<CR>
 
-" color scheme setup
+" color scheme setup. Use H to toggle visible cursor column,
+" and h to toggle cursor line highlighting
 noremap <Leader>H :set cursorline! cursorcolumn!<CR>
 noremap <Leader>h :set cursorline!<CR>
 
@@ -382,3 +392,8 @@ colorscheme SummerFruit256
 
 set cursorline
 :hi CursorLine term=bold cterm=bold guibg=Grey20
+
+
+" vimrc command to edit the vimrc file
+command! Vimrc :edit ~/s/home_scripts/vim/vimrc
+
