@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# search using ag for the provided pattern, then open results as a vim quickfix
+# If no matches are found, exit.
+
+set -euf -o pipefail
+
+fn=`mktemp quickfix.XXXXXXXXXX`
+ag --vimgrep "$@" > $fn
+if [[ -s "$fn" ]]; then
+  vim -c 'copen' -q "$fn"
+fi
+rm -f "$fn"
