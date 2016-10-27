@@ -152,23 +152,23 @@ vnoremap <silent> _t mx:!perltidy-config-dirtree -q<Enter>'x
 " xra xrb => /tmp/a
 " xwa xwb => /tmp/b
 "
-nmap xrr   :r ~/.vimxfer<Enter>
-nmap xww   :'a,.w! ~/.vimxfer<Enter>
-nmap xvv   :e ~/.vimxfer<Enter>
-vmap xrr   c<esc>:r /homes/$USER/.vimxfer<Enter>
-vmap xww   :w! ~/.vimxfer<Enter>
+nnoremap xrr   :r ~/.vimxfer<Enter>
+nnoremap xww   :'a,.w! ~/.vimxfer<Enter>
+nnoremap xvv   :e ~/.vimxfer<Enter>
+vnoremap xrr   c<esc>:r /homes/$USER/.vimxfer<Enter>
+vnoremap xww   :w! ~/.vimxfer<Enter>
 
-nmap xra   :r /tmp/a<Enter>
-nmap xwa   :'a,.w! /tmp/a<Enter>
-nmap xva   :e /tmp/a<Enter>
-vmap xra   c<esc>:r /tmp/a<Enter>
-vmap xwa   :w! /tmp/a<Enter>
+nnoremap xra   :r /tmp/a<Enter>
+nnoremap xwa   :'a,.w! /tmp/a<Enter>
+nnoremap xva   :e /tmp/a<Enter>
+vnoremap xra   c<esc>:r /tmp/a<Enter>
+vnoremap xwa   :w! /tmp/a<Enter>
 
-nmap xrb   :r /tmp/b<Enter>
-nmap xwb   :'a,.w! /tmp/b<Enter>
-nmap xvb   :e /tmp/b<Enter>
-vmap xrb   c<esc>:r /tmp/a<Enter>
-vmap xwb   :w! /tmp/b<Enter>
+nnoremap xrb   :r /tmp/b<Enter>
+nnoremap xwb   :'a,.w! /tmp/b<Enter>
+nnoremap xvb   :e /tmp/b<Enter>
+vnoremap xrb   c<esc>:r /tmp/a<Enter>
+vnoremap xwb   :w! /tmp/b<Enter>
 
 " page like a pager
 :nmap <Space> <PageDown>
@@ -354,17 +354,17 @@ nnoremap <Leader>tr :NERDTreeToggle<CR>
 nnoremap <Leader>tf :NERDTreeFind<CR>
 
 " toggle the tagbar
-nmap <Leader>tt :TagbarOpenAutoClose<CR>
-nmap <Leader>tT :TagbarToggle<CR>
-nmap <Leader>tp :TagbarTogglePause<CR>
+nnoremap <Leader>tt :TagbarOpenAutoClose<CR>
+nnoremap <Leader>tT :TagbarToggle<CR>
+nnoremap <Leader>tp :TagbarTogglePause<CR>
 
 
 "CTRL-P bindings, use p prefix
-nmap <Leader>pb :CtrlPBuffer<CR>
-nmap <Leader>pt :CtrlPBufTag<CR>
-nmap <Leader>pp :CtrlP<CR>
-nmap <Leader>pm :CtrlPMRU<CR>
-nmap <Leader>pr :CtrlPMRU<CR>
+nnoremap <Leader>pb :CtrlPBuffer<CR>
+nnoremap <Leader>pt :CtrlPBufTag<CR>
+nnoremap <Leader>pp :CtrlP<CR>
+nnoremap <Leader>pm :CtrlPMRU<CR>
+nnoremap <Leader>pr :CtrlPMRU<CR>
 
 
 " Align line-wise comment delimiters flush left instead of following code indentation
