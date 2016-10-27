@@ -5,7 +5,7 @@ execute pathogen#infect()
 " map our prefix key to comma, and map \ back to the reverse character search,
 " which is the default leader key
 let mapleader = ','
-noremap \ ,
+nnoremap \ ,
 
 set relativenumber
 set visualbell
@@ -336,8 +336,8 @@ nnoremap <Leader>gpl :Gpull<CR>
 nnoremap <Leader>gb  :Git rebase<CR>
 nnoremap <Leader>gf  :Git git fetch<CR>
 
-nnoremap <Leader>gll :silent! Glog -25 -- %<CR>:bot copen<CR>  "sane number of versions, log patches
-nnoremap <Leader>glf :silent! Glog -25<CR>:bot copen<CR>       "sane number of versions, log files
+nnoremap <Leader>gll :silent! Glog -100 -- %<CR>:bot copen<CR>  "sane number of versions, log patches
+nnoremap <Leader>glf :silent! Glog -100<CR>:bot copen<CR>       "sane number of versions, log files
 
 " fix gitv so that it opens with the diffs expanded.
 augroup git
@@ -382,7 +382,7 @@ noremap <Leader>ec :lclose<CR>
 noremap <Leader>H :set cursorline! cursorcolumn!<CR>
 noremap <Leader>h :set cursorline!<CR>
 
-" ============== COLOR ===============
+" ============== BEGIN COLOR ===============
 "
 " color scheme setup - this should be before
 " other color customizations
@@ -393,8 +393,16 @@ colorscheme SummerFruit256
 set cursorline
 :hi CursorLine term=bold cterm=bold guibg=Grey20
 
+" ============== END COLOR ===============
 
-" vimrc command to edit the vimrc file
+" upcase the current word via CTRL-U
+inoremap <C-u> <esc>bviwU<esc>ea
+nnoremap <C-u> viwUe
+
+" Vimrc command to edit the vimrc file
 "command! Vimrc :edit resolve(expand("~/.vimrc"))
-command! Vimrc :edit ~/s/home_scripts/vim/vimrc
+command! Vimrc :tabedit ~/s/home_scripts/vim/vimrc
+nnoremap <Leader>ve :Vimrc<CR>
+nnoremap <Leader>vs :source $MYVIMRC<CR>
+
 
