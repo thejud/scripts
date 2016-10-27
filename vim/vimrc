@@ -174,9 +174,13 @@ vnoremap xwb   :w! /tmp/b<Enter>
 :nmap <Space> <PageDown>
 
 
-" map jj to <esc> in insert mode. Save your fingers. Turn it off
-" if you need to type jj for some reason...
-:imap jj <Esc>
+" map jk to <esc> in insert mode. Save your fingers. Turn it off if you need
+" to type jk for some reason. use jk instead of jj because in normal mode it
+" will return you to the same spot, just in case you type it by mistake.
+:inoremap jk <Esc>
+
+" disable normal escape in insert mode to force me to learn the new way.
+:inoremap <esc> <noop>
 
 
 " don't expand tabs in makefile
