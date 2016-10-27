@@ -184,7 +184,7 @@ vnoremap xwb   :w! /tmp/b<Enter>
 
 
 " don't expand tabs in makefile
-au FileType make :set noexpandtab
+autocmd FileType make :set noexpandtab
 
 " make tab semi-intelligent. Autocomplete at end of word
 "inoremap <tab> <c-r>=InsertTabWrapper()<cr>
