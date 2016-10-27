@@ -37,7 +37,7 @@ filetype plugin indent on    " enable smart filetype detection
 :set guifont=-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-koi8-r
 
 " when using gf to jump to file under cursor, try with .rb extension
-set suffixesadd+=.rb        
+set suffixesadd+=.rb
 
 set hlsearch                 " highlight search matches. Combine with * for quick visual find
 
@@ -345,7 +345,7 @@ augroup git
     autocmd FileType git :setlocal nofoldenable
 augroup END
 
-" quick save commands, use Leader-s in normal and insert 
+" quick save commands, use Leader-s in normal and insert
 " note that you can use CTRL-O Leader-s in paste mode
 nnoremap <leader>s :w<cr>
 inoremap <leader>s <C-c>:w<cr>
@@ -371,7 +371,7 @@ nnoremap <Leader>pr :CtrlPMRU<CR>
 let g:NERDDefaultAlign = 'start'
 
 " next and previous location bar entries (syntastic)
-" TODO: unimpaired [q and ]q  are 
+" TODO: unimpaired [q and ]q  are
 noremap <Leader>ej :lnext<CR>
 noremap <Leader>ek :lprev<CR>
 noremap <Leader>eo :lopen<CR>
