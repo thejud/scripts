@@ -239,12 +239,17 @@ endif
 "" default the statusline to green when entering Vim
 "hi statusline guibg=DarkGrey ctermfg=8 guifg=White ctermbg=15
 "
-
+  
 "------------ whitespace highlighting ---------"
 " trailing whitespace highlighting
-:highlight ExtraWhitespace ctermbg=darkgreen guibg=lightgreen
-:au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
-:au InsertLeave * match ExtraWhitespace /\s\+$/
+":highlight ExtraWhitespace ctermbg=darkgreen guibg=lightgreen
+:highlight ExtraWhitespace term=standout ctermfg=15 ctermbg=1 guifg=White guibg=Red
+:autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+:autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+
+" show trailing whitespace with cot (trailing)
+nnoremap cot :match ErrorMsg /\v\s+$/<CR>
+nnoremap coT :match<CR>
 
 "" Show trailing whitespace and spaces before a tab:
 ":match ExtraWhitespace /\s\+$\| \+\ze\t/
@@ -289,7 +294,7 @@ set pastetoggle=<leader>z
 noremap <Leader>pp "*p
 
 " copy to the system clipboard (the plus register)
-noremap <Leader>cc "*y
+noremap <Leader>cp "*y
 
 " BEGIN airline setup ------------
 let g:airline_theme='light'  " welcome to the light side
@@ -408,4 +413,7 @@ command! Vimrc :tabedit ~/s/home_scripts/vim/vimrc
 nnoremap <Leader>ve :Vimrc<CR>
 nnoremap <Leader>vs :source $MYVIMRC<CR>
 
+" write and source the current file. For vimscript creation.
+inoremap <Leader>S <esc>:write<cr>:source %<cr>
+nnoremap <Leader>S :write<cr>:source %<cr>
 
