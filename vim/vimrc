@@ -46,8 +46,8 @@ nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><C-l>
 
 
 " toggle syntax hilighting with co;  another similar match to unimpaired
-:nmap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
-:nmap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+:noremap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+:noremap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 
 " toggle paste mode with cop similar to "change option" used elsewhere
 :nmap cop :set paste!<CR>
