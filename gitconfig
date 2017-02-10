@@ -15,8 +15,6 @@
     ca = commit --amend
     amend = commit --amend
     caa = commit -a --amend -C HEAD
-    filelog = log -u
-    fl = log -u
 
     ai = add --interactive
 
@@ -26,28 +24,47 @@
     bra = branch -ra
 
     #list commands
+    la = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s"'
+    laa = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s >> %C(blue)%d%C(reset)"'
     le = log --oneline --decorate
-    ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-    ls1 = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
-    lds = log --pretty=format:"%C(yellow)%h\\ %C(green)%ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short --graph
-    ls = log --pretty=format:"%C(green)%h\\ %C(yellow)[%ad]%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+    ll = log --pretty='format:"%C(yellow)%h%Cred%d %Creset%s%Cblue [%cn] %cd"' --decorate --numstat
+    lf = log --name-status --pretty=short --graph
+    ls1 = log --pretty=format:"%C(yellow)%h%Cred%d %Creset%s%Cblue [%cn]" --decorate
+    lds = log --pretty=format:'"%C(yellow)%h %C(green)%ad%Cred%d %Creset%s%Cblue [%cn]"' --decorate --date=short --graph
+    ls = log --pretty=format:'"%C(green)%h %C(yellow)[%ad]%Cred%d %Creset%s%Cblue [%cn]"' --decorate --date=relative
     lc  = "!f() { git ll "$1"^.."$1"; }; f"
-    lnc = log --pretty=format:"%h\\ %s\\ [%cn]"
-    lpt = log --graph --pretty=format:"%h\\ parents=(%p)\\ tree=%t\\ %d\\ %s"
+    lnc = log --pretty=format='"%h %s [%cn]"'
+
+    # tree view commands, for null merge detection and other goodness
+    ltree1 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s"'
+    ltree2 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %<(100,trunc)%s [%cn/%an] %crA"'
+    ltree3 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s [%cn]"'
+    l1 = !git ltree1
+    l2 = !git ltree2
+    l3 = !git ltree3
+
+    logdate = log --pretty=format:'%h %cd [%an] %s' --graph --date=short
+    logweek = log --pretty=format:'%h %cd [%an] %s' --graph --date=short --since=1.week
+    logday = log --pretty=format:'%h %cd [%an] %s' --graph --date=relative --since=1.day
+
 
     #list all aliases
-    la = "!git config -l | grep alias | cut -c 7-"
     aliases = "!git config -l | grep alias | cut -c 7-"
+
+    mergetest = "!f(){ git merge --no-commit --no-ff \"$1\"; git merge --abort; echo \"Merge aborted\"; };f "
+
     diff = diff --word-diff
     d = diff --word-diff
     dc = diff --cached
+
     #list modified files in last commit
-    dl = "!git ll -1"
+    df = "!git ll -1"
+
     #diff last commit
     dlc = diff --cached HEAD^
     dr  = "!f() { git diff -w "$1"^.."$1"; }; f"
     diffr  = "!f() { git diff "$1"^.."$1"; }; f"
-    branch = branch -ra
+    #branch = branch -ra
 
     #reset commands
     r = reset
@@ -73,8 +90,8 @@
     f = "!git ls-files | grep -i"
     lol = log --oneline --graph --decorate
 
-    up = pull --rebase
-
+    # up = safe update. fast-forward only
+    up = "!git remote update -p; git merge --ff-only @{u}"
 
 [push]
   default = simple

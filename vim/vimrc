@@ -1,3 +1,4 @@
+set shell=/bin/bash
 set modelines=0       " avoid security hole with running code on load
 set nocompatible      " We're running Vim, not Vi!
 execute pathogen#infect()
@@ -381,6 +382,7 @@ let g:NERDDefaultAlign = 'start'
 
 " next and previous location bar entries (syntastic)
 " TODO: unimpaired [q and ]q  are
+noremap <Leader>eh :lfirst<CR>
 noremap <Leader>ej :lnext<CR>
 noremap <Leader>ek :lprev<CR>
 noremap <Leader>eo :lopen<CR>
