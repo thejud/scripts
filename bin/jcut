@@ -1,0 +1,114 @@
+#!/usr/bin/env ruby
+# simple cut with support for repeated whitespace
+#
+# EXAMPLES:
+# 
+# extract username and group
+# ls -l /tmp | jcut -4 -5
+#
+# combine username and group with tab
+# ls -l /tmp | jcut -t -5 -4
+#
+# TODO:
+# Support for ranges, e.g. -f 2:6,  -f :6, -f 2:, -f 9:1
+
+require 'optparse'
+
+########################################
+# FUNCTIONS
+########################################
+
+def expand_it(range)
+  expanded = []
+  range.split(/,/).each do |s|
+    if s.include?(":")
+      s_start, s_end = s.split( /:/, 2 )
+      die "Must provide an end" unless s_end
+
+      s_start ||= 1
+      s_start = s_start.to_i
+      s_end   = s_end.to_i
+
+      if s_start < s_end
+        expanded += (s_start .. s_end).to_a
+      else 
+        expanded += s_start.downto(s_end).to_a
+      end
+    else
+      expanded.push(s)
+    end
+  end    
+  expanded
+end
+
+def parse_args
+  o = {
+    join: ' ', 
+    delimiter: /\s+/
+  }
+  OptionParser.new do |opts|
+    opts.banner = "Usage: jcut [options]"
+    opts.on("-h", "--help", "Show help") do
+     puts opts 
+     exit
+    end
+
+    opts.on("-f", "--fields RANGE", "Field(s)") do |v|
+      o[:columns] = expand_it(v)
+    end
+
+    opts.on("-t", "--tab", "Join columns with tabs") do
+      o[:join] = "\t"
+    end
+
+    opts.on("-j", "--join STRING", "Join columns with STRING") do |v|
+      o[:join] = v
+    end
+
+    opts.on("-d", "--delimiter <pattern>", "Split fields with pattern DEFAULT: (\s+)") do
+      o[:split] = v
+    end
+
+    opts.on("-H", "--headers H1,H2,H3", Array, "add header field(s) to output") do |v|
+      o[:headers] ||= []
+      o[:headers] += v
+    end
+
+  end.parse!
+  return o
+end
+
+def parse_numeric_args
+  # support -1 -2 -3 -14 column (like head) syntax for simplicity
+  return [] unless ARGV
+
+  columns = []
+  ARGV.delete_if do |v|
+    m = /^-(\d+)/.match(v)
+    if m 
+      columns.push(m[1])
+      true
+    else
+      false
+    end
+  end
+  columns 
+end
+
+########################################
+# MAIN BODY
+########################################
+
+columns = parse_numeric_args
+opts = parse_args()
+opts[:columns] ||= []
+opts[:columns] = (columns + opts[:columns]).map { |v| v.to_i }
+
+if opts[:headers].to_a.any? 
+  puts opts[:headers].join(opts[:join])
+end
+
+ARGF.each_line do |line|
+  fields = line.split( opts[:delimiter] )
+  puts opts[:columns].map { |i| fields[i-1] }.join( opts[:join] )
+end
