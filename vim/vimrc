@@ -1,3 +1,4 @@
+set shell=/bin/bash
 set modelines=0       " avoid security hole with running code on load
 set nocompatible      " We're running Vim, not Vi!
 execute pathogen#infect()
@@ -46,8 +47,8 @@ nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><C-l>
 
 
 " toggle syntax hilighting with co;  another similar match to unimpaired
-:nmap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
-:nmap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+:noremap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+:noremap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 
 " toggle paste mode with cop similar to "change option" used elsewhere
 :nmap cop :set paste!<CR>
@@ -239,12 +240,17 @@ endif
 "" default the statusline to green when entering Vim
 "hi statusline guibg=DarkGrey ctermfg=8 guifg=White ctermbg=15
 "
-
+  
 "------------ whitespace highlighting ---------"
 " trailing whitespace highlighting
-:highlight ExtraWhitespace ctermbg=darkgreen guibg=lightgreen
-:au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
-:au InsertLeave * match ExtraWhitespace /\s\+$/
+":highlight ExtraWhitespace ctermbg=darkgreen guibg=lightgreen
+:highlight ExtraWhitespace term=standout ctermfg=15 ctermbg=1 guifg=White guibg=Red
+:autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+:autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+
+" show trailing whitespace with cot (trailing)
+nnoremap cot :match ErrorMsg /\v\s+$/<CR>
+nnoremap coT :match<CR>
 
 "" Show trailing whitespace and spaces before a tab:
 ":match ExtraWhitespace /\s\+$\| \+\ze\t/
@@ -289,7 +295,7 @@ set pastetoggle=<leader>z
 noremap <Leader>pp "*p
 
 " copy to the system clipboard (the plus register)
-noremap <Leader>cc "*y
+noremap <Leader>cp "*y
 
 " BEGIN airline setup ------------
 let g:airline_theme='light'  " welcome to the light side
@@ -376,6 +382,7 @@ let g:NERDDefaultAlign = 'start'
 
 " next and previous location bar entries (syntastic)
 " TODO: unimpaired [q and ]q  are
+noremap <Leader>eh :lfirst<CR>
 noremap <Leader>ej :lnext<CR>
 noremap <Leader>ek :lprev<CR>
 noremap <Leader>eo :lopen<CR>
@@ -399,9 +406,8 @@ set cursorline
 
 " ============== END COLOR ===============
 
-" upcase the current word via CTRL-U
+" upppercase the current word via CTRL-U
 inoremap <C-u> <esc>bviwU<esc>ea
-nnoremap <C-u> viwUe
 
 " Vimrc command to edit the vimrc file
 "command! Vimrc :edit resolve(expand("~/.vimrc"))
@@ -409,4 +415,7 @@ command! Vimrc :tabedit ~/s/home_scripts/vim/vimrc
 nnoremap <Leader>ve :Vimrc<CR>
 nnoremap <Leader>vs :source $MYVIMRC<CR>
 
+" write and source the current file. For vimscript creation.
+inoremap <Leader>S <esc>:write<cr>:source %<cr>
+nnoremap <Leader>S :write<cr>:source %<cr>
 
