@@ -180,7 +180,7 @@ vnoremap xwb   :w! /tmp/b<Enter>
 :inoremap jk <Esc>
 
 " disable normal escape in insert mode to force me to learn the new way.
-:inoremap <esc> <noop>
+" :inoremap <esc> <noop>
 
 
 " don't expand tabs in makefile
