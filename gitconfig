@@ -56,6 +56,9 @@
     diff = diff --word-diff
     d = diff --word-diff
     dc = diff --cached
+    
+    diffpush = "!f(){ git diff `git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
+    diffpushf = "!f(){ git log --stat HEAD ^`git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
 
     #list modified files in last commit
     df = "!git ll -1"
