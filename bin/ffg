@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'logger'
+require 'find'
+
+$log=Logger.new STDERR
+
+########################################
+# FUNCTIONS
+########################################
+
+EXCLUDES = %W{
+  \.sw.$
+  ^\.git$
+}
+
+def parse_args
+  o = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
+    opts.on("-h", "--help", "Show help") do
+     puts opts
+     exit
+    end
+    opts.on("-q", "--quiet", "Quiet. Decrease verbosity only. Can be repeated") do
+      o[:quiet] ||= 0
+      o[:quiet] += 1 if o[:quiet] < 2
+    end
+    opts.on("-p", "--path", "Match full path, not just basename") do 
+      o[:path] = true
+    end
+    opts.on("-d", "--dir", "Match directories, not just files") do
+      o[:dirs] = true
+    end
+    opts.on("-a", "--all", "match all files, even the excluded ones") do
+      o[:all] = true
+    end
+  end.parse!
+  return o
+end
+
+def main
+  opts = parse_args
+  pattern = ARGV.shift || '.'
+  dirs = ARGV
+  dirs = ['.'] if dirs.empty?
+  pattern = Regexp.new(pattern)
+  excludes = Regexp.new( EXCLUDES.map { |s| "(#{s})"}.join('|') )
+  Find.find(*dirs) do |path|
+    next if FileTest.directory?(path) unless opts[:dirs]
+    basename = File.basename(path)
+    next if excludes.match(basename) unless opts[:all]
+    name = opts[:path] ? path : basename
+    if pattern.match(name)
+      puts path
+    end
+  end
+end
+
+########################################
+# MAIN BODY
+########################################
+
+if __FILE__ == $0    # this script can be required as a library
+  main
+end
