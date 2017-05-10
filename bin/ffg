@@ -11,7 +11,7 @@ $log=Logger.new STDERR
 ########################################
 
 EXCLUDES = %W{
-  \.sw.$
+  ^\..*\.sw.$
   ^\.git$
 }
 
@@ -36,12 +36,19 @@ def parse_args
     opts.on("-a", "--all", "match all files, even the excluded ones") do
       o[:all] = true
     end
+    opts.on("-1", "--first", "stop at first match") do
+      opts[:first] = true
+    end
   end.parse!
   return o
 end
 
 def main
   opts = parse_args
+  if File.basename($0).end_with? '1'
+    opts[:first] = true
+    # alias as "ff1" or something similar to trigger first find behavior
+  end
   pattern = ARGV.shift || '.'
   dirs = ARGV
   dirs = ['.'] if dirs.empty?
@@ -54,6 +61,7 @@ def main
     name = opts[:path] ? path : basename
     if pattern.match(name)
       puts path
+      return if opts[:first]
     end
   end
 end
