@@ -1,0 +1,10 @@
+#!/usr/bin/env perl
+use strict; use warnings;
+use Scalar::Util;
+my $sum=0;
+for my $line (<>) {
+  for my $item ( split /\s+/, $line ) {
+    $sum += $item if Scalar::Util::looks_like_number($item)
+  }
+}
+print "$sum\n";

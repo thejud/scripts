@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'date'
+
+s = ARGV.join(" ")
+if /\D/.match(s)
+  puts DateTime.parse(s).to_time.to_i
+else
+  puts Time.at(s.to_i)
+end

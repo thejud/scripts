@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+# unhide files with .hide extension, and/or in a .hide directory
+
+use strict;
+use warnings;
+use File::Basename;
+use Getopt::Long qw(:config gnu_getopt);
+
+sub parse_args { 
+    my %o;
+    GetOptions( 
+        "f|force" => \$o{force},
+    ) or die "invalid usage";
+    return %o;
+}
+
+##################################################
+# MAIN
+##################################################
+
+my %opts = parse_args( );
+
+my @input = @ARGV;
+@input = ( "." ) unless @input;
+my @files;
+# find *.hide and .hide/*.hide for each directory in the input
+for ( @input ) {
+    if ( -d $_ ) {
+        push @files, glob( "$_/*.hide" );
+        push @files, glob( "$_/.hide/*.hide" ) if -d "$_/.hide";
+    }
+    else {
+        push @files, $_;
+    }
+}
+
+FILE:
+for my $f ( @files ) {
+    (my $target = $f ) =~ s/\.hide$//;
+    my $dir = dirname( $target );
+    $dir =~ s|\.hide/?$||;         # if we had foo/.hide/bar.txt.hide
+    my $basename = basename( $target );
+
+    if ( -e "$f.hide" ) {
+        $f = "$f.hide"
+    }
+    elsif ( -e "$dir/.hide/$basename.hide" ) {
+        $f = "$dir/.hide/$basename.hide";
+        $target = "$dir/$basename";
+    }
+
+    if ( ! -e $f ) {
+        warn( "$f not hidden in . or .hide"), next FILE;
+    }
+    warn( "$target exists. skipping"), next if -e $target && ! $opts{force};
+    rename $f, $target;
+    # print "unhide $f\n";
+
+    # clean up empty .hide dir
+    if ( -d "$dir/.hide" && ! glob( "$dir/.hide/*") ) {
+        rmdir "$dir/.hide" ;
+    }
+}
+

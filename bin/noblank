@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# print all no-blank lines
+
+ARGF.each do |line|
+  print line if line.match(/\S/)
+end

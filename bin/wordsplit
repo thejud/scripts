@@ -1,0 +1,5 @@
+#!/usr/bin/env perl
+for (<>) {
+  s/\s/\n/g; 
+  print $_;
+}

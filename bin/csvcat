@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# join CSV files by only printing the first (header) row of the very first file
+
+ARGV.each_with_index do |file_name, file_index|
+  File.readlines(file_name).each_with_index do |line, line_index|
+    if line_index == 0
+      if file_index == 0
+        print line
+      end
+    else
+      print line
+    end
+  end
+end

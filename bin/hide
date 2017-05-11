@@ -1,0 +1,30 @@
+#!/usr/bin/env perl
+# hide files by appending .hide. 
+# If -d specified, they are placed in a .hide directory
+
+use strict;
+use warnings;
+use File::Basename;
+
+die "usage: hide [-d] <filename...>" unless @ARGV;
+
+our $dirmode;
+if ( $ARGV[0] eq "-d" ) { 
+    $dirmode = 1;
+    shift @ARGV;
+}
+
+FILE: 
+for my $f ( @ARGV ) {
+    my ($base, $dir )  = fileparse( $f );
+    $dir = "." unless length( $dir ); 
+    if ( $dirmode ) {
+        $dir .= ".hide/";
+        mkdir( $dir ) || die $!  unless -e $dir;
+    }
+    my $target = "$dir$base.hide";
+    warn "$target exists: skipping", next FILE if -e $target;
+    warn "$f doesn't exist", next FILE unless -e $f;
+    rename $f, $target;
+}
+

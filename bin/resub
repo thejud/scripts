@@ -1,0 +1,293 @@
+#!/usr/bin/env perl
+###########################################
+# resub -- 2006, Jud Dagnall  <jud@dagnall.net>
+###########################################
+# PURPOSE bulk-replace using regular expressions
+###########################################
+use strict;
+use warnings;
+use Pod::Usage;
+use Getopt::Long qw(:config gnu_getopt);
+use Log::Log4perl qw(:easy);
+use File::Find::Rule;
+use IO::File;
+use IO::Interactive qw(is_interactive);
+use File::Temp;
+use Sysadm::Install qw(cp ask slurp say);
+
+my  $VERSION = "0.01";
+
+###########################################
+sub parse_args {
+###########################################
+    my %opts = ( verbose => 0);
+    GetOptions(\%opts,
+        "confirm|c",
+        "debug|d+",
+        "dry_run|dry-run|n",
+        "from_file|from-file|f=s",
+        "help|h",
+        "ignore_case|ignore-case|i",
+        "ignore_errors|ignore-errors|e",
+        "recursive|r",
+        "verbose|v",
+        "match|m=s",
+        "nomatch|V|M=s",
+        ) or pod2usage(-1);
+
+    pod2usage({-verbose=>2}) if $opts{help};
+    return %opts;
+}
+
+###########################################
+sub replace {
+###########################################
+    my $file = shift;
+    my $pattern = shift || LOGDIE "pattern required";
+    my $replacement = shift; LOGDIE 'No pattern' unless defined $replacement;
+    my $opts = shift;
+
+    DEBUG "replacing file: $file";
+
+    DEBUG "search pattern: $pattern";
+
+    my $in = IO::File->new( $file, 'r' );
+    unless ( $in ) {
+        $opts->{ignore_errors}
+            ? ( ERROR "Can't open $file: $!", return )
+            : LOGDIE "Can't open file: $!"
+        ; 
+    }
+
+    say  "$file" if $opts->{verbose};
+    my $out  = File::Temp->new( UNLINK => 0 );
+    my $modified = 0;
+
+    LINE:
+    while ( defined( my $line = $in->getline ) ) {
+        DEBUG "line $line";
+        unless ( $line =~ /$pattern/ ) {
+            DEBUG "no match";
+            print $out $line;
+            next LINE;
+        }
+
+        if ( defined $opts->{nomatch} && $line =~ /$opts->{nomatch}/ ) {
+            DEBUG "matched nomatch expression. skipping";
+            print $out $line;
+            next LINE;
+        }
+
+        if ( defined $opts->{match} && $line !~ /$opts->{match}/ ) {
+            DEBUG "didn't match match expression. skipping";
+            print $out $line;
+            next LINE;
+        }
+
+        $modified = 1;
+
+        DEBUG "got match";
+        if ( $opts->{confirm} ) {
+            print $line;
+            my $yn = ask( "replace: y/n/all ", 'y') ;
+            if ( $yn !~ /^[ya]/ ) {
+                print $out $line;
+                next LINE;
+            }
+            # turn off confirm with all
+            $opts->{confirm} = 0 if $yn =~ /^a(ll)?/;
+        }
+
+        eval "\$line =~ s/\$pattern/$replacement/g";
+        print $out $line;
+        print $line if $opts->{verbose};
+    }
+
+    $in->close;
+    $out->close;
+
+    if ( ! $modified ) {
+        DEBUG("unmodified");
+        unlink $out;
+        return 1;
+    }
+
+    INFO "moving " . $out->filename . " to $file "; 
+
+    return 1 if $opts->{dry_run};
+
+    cp( $out->filename, $file ) or $opts->{ignore_errors}
+            ? ( ERROR "Can't copy tempfile to $file: $!", return )
+            : LOGDIE "Can't copy tempfile to file: $!";
+    unlink $out->filename;
+    return 1;
+}
+
+###########################################
+# MAIN BODY
+###########################################
+
+my %opts = parse_args();
+
+Log::Log4perl->easy_init({
+    level    => $WARN,
+    layout   => "%d %p %l %m%n",
+    # forcing category 'main' hides debug messages from OTHER modules
+    category => $opts{debug} ? "" : "main",   
+    file     => "STDERR",
+    });
+Log::Log4perl->get_logger()->more_logging($opts{debug}) if $opts{debug};
+
+WARN "DRY RUN" if $opts{dry_run};
+
+my $pattern = shift @ARGV       or pod2usage( "pattern required" );
+my $replacement = shift @ARGV   or pod2usage( "replacement required" );
+
+$pattern = "(?i)$pattern" if $opts{ignore_case};
+
+DEBUG "pattern: $pattern";
+DEBUG "replacement: $replacement";
+
+my @files = @ARGV;
+if ( $opts{from_file} ) {
+    $opts{from_file} = '/dev/stdin' if $opts{from_file} eq '-';
+    LOGDIE "can't read from stdin and confirm" 
+        if $opts{confirm} && $opts{from_file} eq '/dev/stdin';
+    push @files, split("\n", slurp $opts{from_file});
+}
+
+@files = '.' unless @files;
+my @search_list;
+for ( @files ) {
+    if ( -d ) {
+        DEBUG "getting contents of directory $_";
+        push @search_list,  $opts{recursive} ? 
+            File::Find::Rule->file->in( $_ ) :
+            File::Find::Rule->file->maxdepth(1)->in( $_ );
+    }
+    else {
+        push @search_list, $_;
+    }
+}
+
+DEBUG "got files: " .join( "|", @search_list );
+
+my %processed;
+for my $file( @search_list ) {
+    next if $processed{$file}++;
+    next if ( $file =~ /\.(swo|swp)$/ );
+    DEBUG "processing file $file";
+    replace( $file, $pattern, $replacement, \%opts );
+}
+
+__END__
+
+=head1 NAME
+
+    resub - bulk replace using regular expressions
+
+=head1 SYNOPSIS
+
+    resub [OPTIONS] <REGEX> <REPLACEMENT> [file|directory] ...
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--confirm|-c>
+
+Confirm every replacement
+
+=item B<--debug|-d>
+
+Increase verbosity of debugging message. Can be repeated.
+
+=item B<--dry-run|-n>
+
+Dry run. Don't actually modify files.
+
+=item B<--from-file|-f>
+
+
+Read list of files to process from a file. use "-" to read from
+STDIN.
+
+=item B<--match|-m <pattern>>
+
+Only perform substitution if lines also match pattern
+
+=item B<--nomatch|-V <pattern>>
+
+Only perform substitution if line does not match pattern. 
+
+=item B<--help|-h>
+
+Prints this manual page in text format.
+
+=item B<--ignore-errors|-e>
+
+Ignore errors when opening and closing files.
+
+=item B<--ignore-case|-i>
+
+Make pattern match insensitive by prepending "(?:i)" to it.
+
+=item B<--recursive|-r>
+
+Process directories recursively. Default is to process all files in the
+specified directory, without recursing.
+
+
+=item B<--verbose|-v>
+
+Increase verbosity of output
+
+=back
+
+=head1 DESCRIPTION
+
+resub performs regular expression substitution on multiple files. Give it
+files or directories, and substitions will be performed. 
+
+The actual substitution takes place in a temp file, which is copied onto the
+original file if substitutions were made, and no errors occured. This should
+correctly substitute in symlinked files, maintaining the symlink and modifying
+the target file.
+
+=head1 EXAMPLES
+
+  # replace multiple files
+  $ resub foo bar file1 file2 file3
+
+  # replace files, confirming each substitution
+  $ resub -c foo bar file1 file2
+
+  # replace all files in the top level of a directory
+  $ resub foo bar my_documents
+
+  # replace files in directories, recursively
+  $ resub -r foo bar my_documents your_documents
+
+  # case-insentive matching 
+  $ resub -i foo bar file1
+
+  # replace using pattern variables
+  # NOTE: THIS DOESN'T WORK
+  $ resub 'my_(docs|images)' '$1' file1
+
+  # read file list from a file (STDIN)
+  $ find . -mtime +1 | resub -f - foo bar 
+
+=head1 FILES
+
+  None
+
+=head1 LEGALESE
+
+Copyright 2007 by Jud Dagnall , all rights reserved.
+This program is free software, you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+2006, Jud Dagnall  <jud@dagnall.net>

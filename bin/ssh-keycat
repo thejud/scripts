@@ -1,0 +1,1 @@
+cat ~/.ssh/*.pub | ssh $1 tee -a .ssh/authorized_keys
