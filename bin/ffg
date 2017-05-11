@@ -12,7 +12,9 @@ $log=Logger.new STDERR
 
 EXCLUDES = %W{
   ^\..*\.sw.$
-  ^\.git$
+}
+PATH_EXCLUDES = %W{
+  /\.git/
 }
 
 def parse_args
@@ -37,32 +39,65 @@ def parse_args
       o[:all] = true
     end
     opts.on("-1", "--first", "stop at first match") do
-      opts[:first] = true
+      o[:first] = true
+    end
+    opts.on("-e", "--edit", "open files in $EDITOR") do
+      o[:edit] = true
     end
   end.parse!
   return o
 end
 
+def editor
+  ENV['VISUAL'] || ENV['EDITOR'] || 'vi'
+end
+
+def capture f
+  @files << f
+end
+
 def main
   opts = parse_args
+
   if File.basename($0).end_with? '1'
     opts[:first] = true
     # alias as "ff1" or something similar to trigger first find behavior
   end
+  if File.basename($0).start_with? 'v'
+    # alias as vff to trigger open in editor
+    opts[:editor] = true
+  end
+
+  @files = []
+
   pattern = ARGV.shift || '.'
   dirs = ARGV
-  dirs = ['.'] if dirs.empty?
+  dirs << '.' if dirs.empty?
+
   pattern = Regexp.new(pattern)
   excludes = Regexp.new( EXCLUDES.map { |s| "(#{s})"}.join('|') )
+  path_excludes = Regexp.new( PATH_EXCLUDES.map { |s| "(#{s})"}.join('|') )
+
   Find.find(*dirs) do |path|
     next if FileTest.directory?(path) unless opts[:dirs]
     basename = File.basename(path)
-    next if excludes.match(basename) unless opts[:all]
+
+    if opts[:all]
+      next if excludes.match(basename)
+      next if path_excludes.match(path)
+    end
+
     name = opts[:path] ? path : basename
     if pattern.match(name)
+      capture(path) if opts[:edit] 
       puts path
-      return if opts[:first]
+      break if opts[:first]
     end
+  end
+
+  if opts[:edit] and !@files.empty?
+    warn [editor, *@files].join(" ")
+    exec(editor, *@files)
   end
 end
 
