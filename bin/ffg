@@ -14,7 +14,7 @@ EXCLUDES = %W{
   ^\..*\.sw.$
 }
 PATH_EXCLUDES = %W{
-  /\.git/
+  /\.git
 }
 
 def parse_args
@@ -82,7 +82,7 @@ def main
     next if FileTest.directory?(path) unless opts[:dirs]
     basename = File.basename(path)
 
-    if opts[:all]
+    unless opts[:all]
       next if excludes.match(basename)
       next if path_excludes.match(path)
     end
