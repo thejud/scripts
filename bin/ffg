@@ -21,8 +21,9 @@
 ## print all files starting with z in the current dir tree:
 #   ff '^z'
 #
-## print all files in the bar directory tree. '.' is the regex to match all 
-#   ff . bar
+## print all files in the bar and baz directory trees. '.' is the regex to
+## match all .
+#   ff . bar baz
 #
 ## match any path under baz that path 'pat'   
 #   ff -d pat baz
@@ -53,14 +54,10 @@ PATH_EXCLUDES = %W{
 def parse_args
   o = {}
   OptionParser.new do |opts|
-    opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
+    opts.banner = "Usage: #{File.basename(__FILE__)} [options] [[PATTERN] [PATH...]]"
     opts.on("-h", "--help", "Show help") do
      puts opts
      exit
-    end
-    opts.on("-q", "--quiet", "Quiet. Decrease verbosity only. Can be repeated") do
-      o[:quiet] ||= 0
-      o[:quiet] += 1 if o[:quiet] < 2
     end
     opts.on("-p", "--path", "Match full path, not just basename") do 
       o[:path] = true
@@ -74,7 +71,7 @@ def parse_args
     opts.on("-1", "--first", "stop at first match") do
       o[:first] = true
     end
-    opts.on("-e", "--edit", "open files in $EDITOR") do
+    opts.on("-e", "--edit", 'open files in $FF_EDITOR, $VISUAL, $EDITOR or vi') do
       o[:edit] = true
     end
   end.parse!
