@@ -1,10 +1,43 @@
 #!/usr/bin/env ruby
+#
+# Simple find file utilities
+# 
+# Often I want to find one (or all files) matching a pattern.
+# This can be accomplished by using the find command, possibly
+# piping to grep and/or head. But for the common cases, I have
+# a set of simple aliases that can be provided by symlinking
+# this script, and/or by using the provided command line flags. 
+# It also excludes some really basic things like the .git directory
+# and vim temp files.
+#
+# ff, ffg - find files matching a pattern
+# ff1 - find files, stop at first match
+# vff - open matching files vim (or EDITOR)
+#
+# EXAMPLES:
+## print all fiels in the current directory or below. See also tree
+#   ff
+#
+## print all files starting with z in the current dir tree:
+#   ff '^z'
+#
+## print all files in the bar directory tree. '.' is the regex to match all 
+#   ff . bar
+#
+## match any path under baz that path 'pat'   
+#   ff -d pat baz
+#
+## find the first file that matches pat under baz. symlink as 'ff1' to trigger
+## this behavior.
+#   ff -1 pat baz
+#
+## open the first file that starts with '^pat' in your EDITOR. symlink as 'vff1'
+## Set FF_EDITOR, VISUAL or EDITOR in order of precedence.
+#
+#   ff -e -1 '^pat'
 
 require 'optparse'
-require 'logger'
 require 'find'
-
-$log=Logger.new STDERR
 
 ########################################
 # FUNCTIONS
@@ -49,7 +82,7 @@ def parse_args
 end
 
 def editor
-  ENV['VISUAL'] || ENV['EDITOR'] || 'vi'
+  ENV['FF_EDITOR'] || ENV['VISUAL'] || ENV['EDITOR'] || 'vi'
 end
 
 def capture f
