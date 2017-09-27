@@ -1,0 +1,238 @@
+#!/usr/bin/perl
+
+use Cwd;
+use Pod::Usage;
+
+our $CVSVERSION = '$Revision: 1.8 $';
+
+my $CDBMRC_FILE = "$ENV{HOME}/.cdbmrc";
+my $EDITOR      = "/usr/bin/vim";
+my $SORT = 0;
+
+if(! @ARGV) {
+    print pick(cdbmrc_get()), "\n";
+    exit 0;
+}
+
+my($action, $path) = ($ARGV[0] =~ /^((?:-|(?:\+\+?))[she]?)(.*)/);
+$path = $ARGV[1] if (!$path and $ARGV[1]);
+
+$SORT = 1 if ($action =~ /s/);
+$PREPEND = 1 if ( $action =~ /^\+\+/ );
+
+my $cwd = getcwd();
+
+if($action =~ /\+/) {
+    $path = $cwd unless length($path);
+    cdbmrc_add($path);     
+} elsif($action =~ /-h/) {
+    pod2usage();
+} elsif($action =~ /-e/) {
+    my $cmd = "$EDITOR $CDBMRC_FILE";
+    die "editor $EDITOR doesn't exist" unless -x $EDITOR;
+    exec($cmd);
+} elsif($action =~ /-/) {
+    $path = $cwd unless length($path);
+    cdbmrc_remove($path);          
+} else {
+    print pick(grep { /$ARGV[0]/ } cdbmrc_get()), "\n";
+}
+
+#############################################################
+sub pick {
+#############################################################
+    my(@options) = @_;
+
+    die "Nothing to pick from" unless @options;
+
+    my $counter = 1;
+
+    for(@options) {
+        print STDERR "[", $counter++, "] $_\n";
+    }
+
+    $| = 1;
+    print STDERR "[1..", $counter-1, "]>";
+
+    my $input = <STDIN>;
+    chomp $input;
+
+    return $options[$input-1];
+}
+
+#############################################################
+sub cdbmrc_get {
+#############################################################
+
+    my @paths = ();
+
+    if(open FILE, "<$CDBMRC_FILE") {
+        while(<FILE>) {
+            next if /^\s*$/;
+            next if /^\s*#/;
+            chomp;
+            push @paths, $_;
+        }
+        close FILE;
+    }
+       
+    return @paths;
+}
+
+#############################################################
+sub cdbmrc_add {
+#############################################################
+    my($path) = @_;
+
+warn "PATH: '$path'";
+
+    my %paths = map { $_ => 1 } cdbmrc_get();
+   
+    if (-d $path) {
+        if(exists $paths{$path}) {
+            warn "$path already exists\n";
+            return;
+        }
+   
+        $paths{$path} = 1;
+       
+        warn "Adding $path\n";
+        if ($SORT) {
+            write_new(sort map{$_} keys %paths);
+        } elsif ( $PREPEND ) {
+            warn "prepending";
+            write_prepend($path);
+        } else {   
+            write_append($path);
+        }
+    } else {
+        warn "$path no directory\n";
+            return;
+    }
+}
+
+#############################################################
+sub write_new {
+#############################################################
+    my @paths = @_;
+
+    open FILE, ">$CDBMRC_FILE" or die "Cannot open $CDBMRC_FILE";
+    print FILE join("\n", @paths), "\n" if @paths ;
+    close FILE;
+
+}
+
+#############################################################
+sub write_prepend {
+#############################################################
+    my $path = shift;
+
+    my @old = cdbmrc_get();
+    write_new($path, @old);
+}
+
+#############################################################
+sub write_append {
+#############################################################
+    my $path = shift;
+
+    open FILE, ">>$CDBMRC_FILE" or die "Cannot open $CDBMRC_FILE";
+    print FILE $path, "\n";
+    close FILE;
+}
+
+#############################################################
+sub cdbmrc_remove {
+#############################################################
+    my($path) = @_;
+
+    warn "Removing $path\n";
+    @paths = grep { $_ ne $path } cdbmrc_get();
+    write_new(@paths); 
+}
+
+__END__
+
+=head1 NAME
+
+cdbm - Bookmarks for shell directory navigation
+
+=head1 DOWNLOAD
+
+_SRC_HERE_
+
+=head1 SYNOPSIS
+
+    cdbm [+-[path]]
+
+=head1 DESCRIPTION
+
+C<cdbm> is a bookmark utility for shell directories to releave the shell user from
+remembering and retyping various directory paths.
+
+When called, C<cdbm> will display a list of path names and let the user
+choose one by typing the number displayed next to it:
+
+    $ cdbm 
+    [1] /apps/NES/https-mike
+    [2] /home/mschilli/projects/cdbm
+    [3] /usr/lib/perl5/site_perl
+    [1-3]>
+
+C<cdbm> by itself its relatively
+useless. No program executed by the shell is able to change the shell's current directory,
+C<cdbm> is no exception, because it's executed by the shell in a subprocess.
+However, in combination with shell aliases and functions (ksh and bash), it unleashes its real power:
+
+    function c () { cd `cdbm`; ls; }
+
+If the shell's initialisation file (.bashrc, .ksh) contains the line above, the newly 
+created 'command' C<c> will first display a list of directories, let the user
+choose one and then switch to it:
+
+    [/tmp] $ c
+    [1] /apps/NES/https-mike
+    [2] /home/mschilli/projects/cdbm
+    [3] /usr/lib/perl5/site_perl
+    [1-3]>2
+    /home/mschilli/projects/cdbm
+    Makefile.PL eg t blib MANIFEST
+    [/home/mschilli/projects/cdbm] $
+
+All that C<cdbm> does is print out the chosen path name, which is then caught by 
+the shell function C<c>, which runs C<cd> on it and effectively carries the user
+over to the chosen directory, in which it runs a C<ls> command for better 
+orientation.
+
+C<cdbm> stores the path names in the file C<.cdbmrc> in the user's home directory.
+For convenient access, it offers command line options to add, remove and
+edit the path collection in C<.cdbmrc>:
+
+    cdbm +/foo/bar/path    # Append a path to the collection
+    cdbm ++/foo/bar/path   # Prepend a path to the collection
+    cdbm -/foo/bar/path    # Remove a path from the list
+    cdbm +                 # Append the current path to the list
+    cdbm ++                # Prepend the current path to the list
+    cdbm -                 # Remove the current path to the list
+    cdbm -e                # Invoke an editor to edit C<.cdbmrc>
+    cdbm -h                # Print help page
+    cdbm -s                # Sort the list
+
+=head1 FILES
+
+    ~/.cdbmrc
+
+=head1 THANKS
+
+Thanks to Ralf Meiﬂner for fixing a bug in cdbm_remove() and adding
+support for sorted lists and more.
+
+=head1 LEGALESE
+
+Copyright 2002 by Mike Schilli, all rights reserved.
+This program is free software, you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+2002, Mike Schilli <m@perlmeister.com>
