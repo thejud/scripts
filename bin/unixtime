@@ -6,5 +6,10 @@ s = ARGV.join(" ")
 if /\D/.match(s)
   puts DateTime.parse(s).to_time.to_i
 else
-  puts Time.at(s.to_i)
+  if s.size > 12
+    t = s.to_i/1000.0  # milliseconds
+  else
+    t = s.to_i
+  end
+  puts Time.at(t)
 end
