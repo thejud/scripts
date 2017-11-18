@@ -30,7 +30,8 @@ AUTHOR:
 
 SEE ALSO:
 
-the pv linux command, e.g. pv -betlap
+* the pv linux command, e.g. pv -betlap
+* perl -pE'say STDERR $. unless $. % 1_000_000'
 
 """
 
