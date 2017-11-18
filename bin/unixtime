@@ -2,6 +2,11 @@
 
 require 'date'
 
+if ARGV.empty?
+  puts DateTime.now.to_time.to_i
+  exit 0
+end
+
 s = ARGV.join(" ")
 if /\D/.match(s)
   puts DateTime.parse(s).to_time.to_i
