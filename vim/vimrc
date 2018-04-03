@@ -9,6 +9,7 @@ let mapleader = ','
 nnoremap \ ,
 
 set relativenumber
+set number
 set visualbell
 
 " ruby fun
@@ -172,6 +173,12 @@ nnoremap xvb   :e /tmp/b<Enter>
 vnoremap xrb   c<esc>:r /tmp/a<Enter>
 vnoremap xwb   :w! /tmp/b<Enter>
 
+" execute the /tmp/a buffer
+nnoremap <leader>r! :r! bash /tmp/a<Enter>
+vnoremap <leader>r! :w! /tmp/a<Enter>:r! bash /tmp/a<Enter>
+
+
+
 " page like a pager
 :nmap <Space> <PageDown>
 
@@ -284,6 +291,7 @@ function! NumberToggle()
     set number
   else
     set relativenumber
+    set number
   endif
 endfunc
 
@@ -293,10 +301,13 @@ endfunc
 set pastetoggle=<leader>z
 
 " paste from the system clipboard, avoiding need to toggle paste mode
-noremap <Leader>pp "*p
+noremap <Leader>pa "*p
+vmap <C-c> :w !pbcopy<CR><CR> 
 
 " copy to the system clipboard (the plus register)
 noremap <Leader>cp "*y
+vmap <C-x> :!pbcopy<CR>  
+vmap <C-c> :w !pbcopy<CR><CR> 
 
 " BEGIN airline setup ------------
 let g:airline_theme='light'  " welcome to the light side
