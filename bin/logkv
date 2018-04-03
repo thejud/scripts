@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+"""
+logkv: extract k=v pairs from a logfile
+"""
+
+from __future__ import print_function
+
+import argparse
+import fileinput
+import json
+import re
+
+def parse_args():
+    desc="extract k=v pairs from a logfile"
+    p = argparse.ArgumentParser(description=desc)
+    p.add_argument('--json', '-j', action='store_true',
+            help="json format")
+    p.add_argument('--pretty', '-p', action='store_true',
+            help='pretty print json output')
+    p.add_argument('files', nargs='*', 
+            default=[],
+            help='files to parse. Default is stdin',
+    ) 
+    opts = p.parse_args()
+    if opts.pretty: opts.json=True
+    return opts
+
+def main():
+  opts=parse_args()
+  indent = 2 if opts.pretty else None
+  pairs = re.compile('(\w+)=(\S*)')
+  for line in fileinput.input(opts.files):
+      if opts.json:
+          v=dict( (k,v) for (k,v) in pairs.findall(line) )
+          print(json.dumps(v, indent=indent))
+      else:
+        m = [ "{} = {}".format(k,v) for (k,v) in pairs.findall(line)]
+        print(*m)
+
+if __name__ == '__main__':
+  main()
