@@ -7,7 +7,7 @@ NAME:
 DESCRIPTION:
 
     Every wanted to quickly visualize some log output from the command line?
-    I often grab some data out of a logfile, and then want to visualize it, e..g
+    I often grab some data out of a logfile, and then want to visualize it, e.g.
     What is the hourly rate of this error message.
     Input is two columns. Unless --basic is specified, the first column is a
     datetime, and the second column is a value. --basic turns on the basic 
@@ -16,6 +16,10 @@ DESCRIPTION:
 AUTHOR:
 
   Jud Dagnall <jud@dagnall.net>
+
+REQUIREMENTS:
+
+    The python pandas and matplot libraries are required.
 
 EXAMPLES:
 
