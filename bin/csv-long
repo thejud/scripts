@@ -19,6 +19,9 @@ def parse_args
      puts opts
      exit
     end
+    opts.on("-b", "--boundary", "print boundary between rows") do
+      o[:boundary] = true
+    end
     opts.on("-t", "--table", "display as table") do
       o[:table] = true
     end
@@ -46,6 +49,9 @@ headers = rows.headers
 out = []
 rows.each_with_index do |r, row_index|
   next if row_index == 0
+  if opts[:boundary]
+    puts "#---------------------------------------------------------"
+  end
   headers.each_with_index do |colname, i|
     if opts[:table]
       out.push( [colname, r[i] ])
