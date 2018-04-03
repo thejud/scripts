@@ -1,20 +1,90 @@
 #!/usr/bin/env ruby
+# convert to/from unix epoch seconds and milliseconds
+#
+# unixtime will parse the input, treating input with all digits as
+# a seconds (or milliseconds, determined by length) since the epoch value.
+# 
+# non-epoch input will be parsed as a date string.
+#
+# WARNING: date strings without a timezone will be treated
+# as UTC. 
+#
+#
+# EXAMPLES:
+#   
+#   # output the current time in epoch seconds
+#   unixtime
+#
+#   # current time in epoch milliseconds
+#   unixtime -m
+#
+#   # convert epoch to a datestring, localtime
+#   unixtime 1512238655
+#
+#   # convert epoch to a UTC datestring
+#   unixtime -u 1512238655
+#
+#   # multiple times, autodetect 
+#   unixtime 1512238655 1512238656001 
+#
+#   # read from stdin
+#   echo 1512238655 | unixtime -
+#
+#   # read from file(s)
+#   unixtime - f1 f2 f3
+#
+#   # string to epoch seconds
+#   date | unixtime -
+#
+#   unixtime '2017-01-01T12:23:14Z'
 
 require 'date'
+require 'optparse'
+
+def parse(s, opts)
+  if /\D/.match(s)
+    puts DateTime.parse(s).strftime(opts[:fmt])
+  else
+    if s.size > 12
+      t = s.to_i/1000.0  # milliseconds
+    else
+      t = s.to_f
+    end
+    out = opts[:utc] ? Time.at(t).utc : Time.at(t)
+
+    if opts[:resolution] > 1
+      puts out.strftime('%F %T.%L %z')
+    else
+      puts out
+    end
+  end
+end
+
+opts = {resolution: 1, fmt: '%s'}
+OptionParser.new do |o|
+  o.banner = "USAGE: #{File.basename($0)} [options] {- | (date|unixtime)... }" 
+  o.on('--utc', '-u', 'UTC output') do
+    opts[:utc] = TRUE
+  end
+  o.on('--millis', '-m', 'millisecond output') do
+    opts[:resolution] = 1000
+    opts[:fmt] = '%Q'
+  end
+end.parse!
 
 if ARGV.empty?
-  puts DateTime.now.to_time.to_i
+  puts DateTime.now.strftime(opts[:fmt])
   exit 0
 end
 
-s = ARGV.join(" ")
-if /\D/.match(s)
-  puts DateTime.parse(s).to_time.to_i
+# trigger filter mode with '-'
+if ARGV[0] == '-'
+    ARGV.shift
+    vals = ARGF
 else
-  if s.size > 12
-    t = s.to_i/1000.0  # milliseconds
-  else
-    t = s.to_i
-  end
-  puts Time.at(t)
+  vals = ARGV
+end
+
+vals.each do |v|
+  parse(v.strip, opts)
 end
