@@ -2,6 +2,8 @@
 # csv-long - display csv files in long format, one column per line
 # use --table/-t to display in a text table
 # use --unified/-u skip the blank line between sections
+# use --schema to get a quick view of the structure with the first line of data
+# use -n 5 to see the first 5 rows
 
 require 'optparse'
 require 'csv'
@@ -31,6 +33,13 @@ def parse_args
     opts.on("-T", "--tab", "tab-separated fields") do
       o[:tabs] = true
     end
+    opts.on("-n", "--number ROWS", "limit number of rows consumed like head") do |v|
+      o[:numrows] = v.to_i
+    end
+    opts.on("-s", "--schema", "turn on --table and -n1 to see schema") do
+      o[:table] = true
+      o[:numrows] = 1
+    end
   end.parse!
   return o
 end
@@ -49,6 +58,7 @@ headers = rows.headers
 out = []
 rows.each_with_index do |r, row_index|
   next if row_index == 0
+  next if row_index > opts[:numrows]
   if opts[:boundary]
     puts "#---------------------------------------------------------"
   end
