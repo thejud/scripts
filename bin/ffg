@@ -10,32 +10,35 @@
 # It also excludes some really basic things like the .git directory
 # and vim temp files.
 #
-# ff, ffg - find files matching a pattern
+# ff  - print files in one or more directories
+# ffg - find files matching a pattern
 # ff1 - find files, stop at first match
 # vff - open matching files vim (or EDITOR)
 #
 # EXAMPLES:
-## print all fiels in the current directory or below. See also tree
+## print all files in the current directory or below. See also tree
 #   ff
 #
-## print all files starting with z in the current dir tree:
-#   ff '^z'
+## print all files in dir1 and dir2
+#   ff dir1 dir2
 #
-## print all files in the bar and baz directory trees. '.' is the regex to
-## match all .
-#   ff . bar baz
+## print all files in the bar and baz directory trees matching special.
+#   ffg special bar baz
 #
-## match any path under baz that path 'pat'   
-#   ff -d pat baz
+## files matching a regex
+#   ffg '000[\d]' !$
+#
+## match any path under baz that path 'special'   
+#   ffg -d special baz
 #
 ## find the first file that matches pat under baz. symlink as 'ff1' to trigger
 ## this behavior.
-#   ff -1 pat baz
+#   ffg -1 pat baz
 #
 ## open the first file that starts with '^pat' in your EDITOR. symlink as 'vff1'
 ## Set FF_EDITOR, VISUAL or EDITOR in order of precedence.
 #
-#   ff -e -1 '^pat'
+#   ffg -e -1 '^pat'
 
 require 'optparse'
 require 'find'
@@ -45,7 +48,8 @@ require 'find'
 ########################################
 
 EXCLUDES = %W{
-  ^\..*\.sw.$
+  ^\\..*\\.sw.$
+  ^\\.
 }
 PATH_EXCLUDES = %W{
   /\.git
@@ -96,6 +100,10 @@ def main
   if File.basename($0).start_with? 'v'
     # alias as vff to trigger open in editor
     opts[:editor] = true
+  end
+  if File.basename($0) == 'ff'
+    # ff just does file listing
+    ARGV.unshift '.'
   end
 
   @files = []
