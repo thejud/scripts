@@ -59,7 +59,7 @@ opts = p.parse_args()
 
 # support number args like head, e.g. -1000
 pattern = re.compile('-(\d+)')
-inputs = []
+
 for f in opts.inputs:
     m = pattern.match(f)
     if m:
