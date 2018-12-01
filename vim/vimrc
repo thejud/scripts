@@ -32,7 +32,7 @@ filetype plugin indent on    " enable smart filetype detection
 :set showmatch               " Show matching parens, etc.
 :set ruler                   " show line/column in status bar
 
-:set iskeyword+=:            " autocomplete perl modules with : in them
+":set iskeyword+=:            " autocomplete perl modules with : in them
 
 :set scrolloff=10           " keep at least 10 lines from the bottom/top
 
@@ -50,6 +50,7 @@ nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><C-l>
 " toggle syntax hilighting with co;  another similar match to unimpaired
 :noremap co; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
 :noremap c; :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif<CR>
+
 
 " toggle paste mode with cop similar to "change option" used elsewhere
 :nmap cop :set paste!<CR>
@@ -231,6 +232,10 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 
+let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_python_checker_args='--ignore=E501,W503'
+"let g:syntastic_python_flake8_args='--ignore=E501,W507'
+
 nnoremap <Leader>yc :SyntasticCheck<CR>
 nnoremap <Leader>yt :SyntasticToggleMode<CR>
 
@@ -388,6 +393,9 @@ nnoremap <Leader>pt :CtrlPBufTag<CR>
 nnoremap <Leader>pp :CtrlP<CR>
 nnoremap <Leader>pm :CtrlPMRU<CR>
 nnoremap <Leader>pr :CtrlPMRU<CR>
+
+" format via black
+nnoremap <Leader>bb :%!black -q -<CR>
 
 
 " Align line-wise comment delimiters flush left instead of following code indentation
