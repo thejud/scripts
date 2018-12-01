@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+# convert integers to binary.
+# if all the arguments look like integers, just convert them
+# otherwise, read filenames
+#
+# echo "obase=2;$1" | bc
+#
+# e.g. 
+# trivial case, convert a number
+#   tobinary 17 18
+# 
+# convert numbers in various files:
+#   tobinary file1 file2
+
+# but, if you actually have a file named '17' and '18',
+# cat 17 18 | tobinary 
+
+# or, to be safe, prepend /dev/null to the filelist
+# tobinary /dev/null *
+
+from __future__ import print_function
+
+import fileinput
+import sys
+
+if len(sys.argv) > 1:
+  try:
+    for v in sys.argv[1:]:
+      print(format(int(v), 'b'))
+    exit(0)
+  except ValueError:
+    pass
+
+for line in fileinput.input():
+  print(format(int(line.strip()), 'b'))
+
