@@ -1,0 +1,4 @@
+# add a final newline if not already present
+# pipe to it, or give it one or more filenames
+
+perl -nE'print; say "" if eof and not /\v$/;' "$@"

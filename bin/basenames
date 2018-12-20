@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+"""print the basename for every line of input"""
+
+from __future__ import print_function
+import os.path
+import fileinput
+
+for f in fileinput.input():
+    print(os.path.basename(f.strip()))
+

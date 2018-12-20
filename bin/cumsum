@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+use strict;
+# cumsum: print cumulative sum of input
+# -i/-d and -f force output to be integer or float, respectively
+# perl -nE'$a+=$_; say $a'
+use Getopt::Long;
+
+my $fmt;
+GetOptions(
+  'float|f' => sub { $fmt = "%0f\n"},
+  'int|i|d' => sub { $fmt="%0d\n"},
+) or die "usage: cumsum [-f|-i] [INFILE]";
+
+my $a = 0;
+while (<>) {
+  $a += $_;
+  if ($fmt) { 
+    printf($fmt, $a);
+  } else { 
+    print "$a\n";
+  }
+}

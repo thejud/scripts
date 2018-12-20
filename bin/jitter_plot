@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -xeuf -o pipefail
+
+infile=${1:-/dev/stdin}
+outfile=${2:-/tmp/out.png}
+
+mydir=$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")
+myscript="$mydir/simple.gp"
+echo "mydir=$mydir"
+
+mydata="$mydir/data"
+cat "$infile" > "$mydata"
+
+#if [ "${range:-}" == "" ]; then
+#  range=`cat "$mydata" | stats | grep Range | awk '{print $2}'`
+#  range=`echo "$range/100+.1" | bc`
+#fi
+range=${range:-0.005}
+echo range="$range"
+
+cat >"$myscript" <<-'EOF'
+  # gnuplot simple plot of a single variable with jitter
+  infile=ARG1
+  outfile=ARG2
+  cradius=ARG3
+  print "infile=",infile
+
+  # radius should probably be ~ range/100
+  set style fill transparent solid 0.25 noborder
+  set style circle radius cradius
+
+  set term png truecolor
+  set output sprintf("%s", outfile)
+  set nojitter
+
+  unset xlabel
+  unset xtics
+
+  #plot infile using 1:(rand(0)) w circles lc rgb "blue"
+
+  # scatter plot
+  plot infile using (0.1*invnorm(rand(0))):1 with circles lc rgb "blue"
+
+  print "wrote plot to: ",outfile
+  quit
+EOF
+
+gnuplot -c "$myscript" "$mydata" "$outfile" "$range"
+
+cat $myscript
+# clean up our tempdir
+rm -rf "$mydir"
+
+if [ -f "$outfile" ]; then
+  open $outfile
+fi

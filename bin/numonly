@@ -1,0 +1,8 @@
+#!/usr/bin/env perl
+# keep only the numbers, in columns.
+
+while(<>) {
+  chomp;
+  s/\D+/ /g;
+  print "$_\n"
+}
