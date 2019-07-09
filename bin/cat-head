@@ -1,0 +1,3 @@
+# concatenate a set of files, separating each one with a header
+
+tail -n +1 "$@"

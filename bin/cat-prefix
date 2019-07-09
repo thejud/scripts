@@ -1,0 +1,3 @@
+# concatenate a list of files, prefixing each line with the filename
+
+grep "" "$@"
