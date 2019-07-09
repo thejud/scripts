@@ -308,6 +308,7 @@ set pastetoggle=<leader>z
 " paste from the system clipboard, avoiding need to toggle paste mode
 noremap <Leader>pa "*p
 vmap <C-c> :w !pbcopy<CR><CR> 
+noremap <Leader>pi "*p
 
 " copy to the system clipboard (the plus register)
 noremap <Leader>cp "*y
