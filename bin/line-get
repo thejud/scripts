@@ -1,0 +1,2 @@
+# print nth line of file
+sed -n "$1p" $2

@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+"""
+convert a json array of values into jsonl - one line per item
+
+EXAMPLES
+
+  echo '[{"a":1},{"c":2}]' | tojsonl
+  {"a": 1}
+  {"c": 2}
+
+NOTE: This will work also:
+    jq -rc '.[]'
+"""
+
+from __future__ import print_function
+
+import fileinput
+import json
+
+items = json.loads("".join(fileinput.input()))
+
+for i in items: 
+  print(json.dumps(i))
+

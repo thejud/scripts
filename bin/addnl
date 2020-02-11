@@ -1,0 +1,3 @@
+# add a newline to the input if not already present
+
+perl -ne'print; print "\n" if eof and not /\v$/'

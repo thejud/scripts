@@ -1,0 +1,2 @@
+# print input as lowecase
+perl -ne'print lc()'
