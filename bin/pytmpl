@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -83,7 +83,7 @@ def read_config(fh):
 
     try:
       import yaml
-      cfg = yaml.load(fh.read())
+      cfg = yaml.safe_load(fh.read())
     except ImportError:
       for line in fh:
           m = line.strip().search(pattern)
