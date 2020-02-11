@@ -58,7 +58,7 @@ headers = rows.headers
 out = []
 rows.each_with_index do |r, row_index|
   next if row_index == 0
-  next if row_index > opts[:numrows]
+  next if row_index > opts.fetch(:numrows, Float::INFINITY)
   if opts[:boundary]
     puts "#---------------------------------------------------------"
   end
