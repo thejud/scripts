@@ -2,7 +2,8 @@
   path = .gitconfig.local
 [core]
   editor = vim
-  excludesfile = ~/.gitignore
+	excludesfile = /Users/jdagnall/.gitignore
+	autocrlf = input
 [alias]
     st = status -s
 
@@ -101,6 +102,9 @@
     # reflog 
     reflog1 = reflog --pretty='%h %<|(20)%gd %cd | %gs'
     reflog2 = reflog --format='%C(auto)%h %gd %C(blue)%>|(33)%cr%C(reset) | %gs (%s)'
+
+    # hash
+    shorthash = rev-parse --short HEAD
 
 [push]
   default = simple

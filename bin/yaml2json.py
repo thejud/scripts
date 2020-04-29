@@ -9,5 +9,5 @@ import fileinput
 import yaml
 
 yaml_data = "".join([line for line in fileinput.input()])
-print(json.dumps(yaml.load(yaml_data), sort_keys=True, indent=2))
+print(json.dumps(yaml.safe_load(yaml_data), sort_keys=True, indent=2))
 
