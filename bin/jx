@@ -133,7 +133,7 @@ def parse_args():
             help='flatten json before selecting. uses the --joiner')
     parser.add_argument('-j', '--joiner',
             help='joiner for keynames when flattening levels, ' + 
-                'e.g. "key1_key2". Default: %(default)s' default='_')
+                'e.g. "key1_key2". Default: %(default)s', default='_')
     parser.add_argument('-H', '--headers', action='store_true',
             help="skip header printing")
     parser.add_argument('-n', '--names', action='store_true',
