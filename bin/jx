@@ -25,13 +25,16 @@ EXAMPLES:
     a_c	a_b
     3	2
 
-    # array indexing
+    # flatten with array indexing
     $ echo '{"a": {"b": 2, "c":3, "d": [7,10]}}' | jx -F a_c a_d_0
     a_c	a_d_0
     3	7
 
     # get field names from first line
     echo '{"a": 1, "b": 2, "c":3}' | jx --names
+    a
+    b
+    c
 
     # alternate json level delimiter. Default is tab.
     $  echo '{"a": {"b": 2, "c":3, "d":[5,6] }}' | jx -F -d. a.c a.b
@@ -42,6 +45,13 @@ EXAMPLES:
     $ echo '{"a":1, "b": 2, "c":3}' | jx  -s '|'  a c
     a|c
     1|3
+
+    # columnar output. Uses the linux `column` command
+    $ printf '{"a": "foo", "b": 1}\n{"a":"loooooong", "b":2}' | jx -c
+    foo        1
+    loooooong  2
+
+
 
 TODO:
     Add positional field extraction. Will require validation of fields on every
@@ -54,6 +64,7 @@ import argparse
 import fileinput
 import json
 import logging
+import subprocess
 import sys
 
 class Flattener:
@@ -76,11 +87,35 @@ class Flattener:
             out[key] = data
         return out
 
+class ColumnPrinter:
+    def __init__(self):
+        self.rows = []
+
+    def print(self, columns):
+        self.rows.append(columns)
+
+    def flush(self):
+        # https://stackoverflow.com/a/12065663
+        widths = [max(map(len, col)) for col in zip(*self.rows)]
+        for row in self.rows:
+            print("  ".join((val.ljust(width) for val, width in zip(row,
+                widths))))
+
+
+class JoiningPrinter:
+    def __init__(self, delimiter):
+        self.delimiter=delimiter
+
+    def print(self, columns):
+        print(self.delimiter.join(columns))
+
 def parse_args():
     parser = argparse.ArgumentParser("jsoncut - extract simple fields from json")
     parser.add_argument('--flatten', '-F', action='store_true',
             help='flatten json before selecting'
     )
+    parser.add_argument('--column', '-c', action='store_true',
+            help='column output')
     parser.add_argument('--delimiter', '-d',
             help='delimiter for json levels, default is %(default)',
             default='_'
@@ -102,13 +137,18 @@ def parse_args():
 
     return parser.parse_args()
 
-
 def run():
     opts = parse_args()
+    out=sys.stdout
+    if opts.column:
+        printer = ColumnPrinter()
+    else:
+        printer = JoiningPrinter(opts.separator)
+
     flattener = Flattener(delimiter=opts.delimiter)
 
-    if not opts.headers:
-        print(opts.separator.join(opts.fields))
+    if opts.fields and not opts.headers:
+        printer.print(opts.fields)
 
     for line in sys.stdin:
         data = json.loads(line.strip())
@@ -119,9 +159,14 @@ def run():
                 print(k)
             return
         logging.debug(data.keys())
+
+        # if we have a list of fields, use them. Otherwise, print all keys
         fields = [ str(data.get(f, "")) for f in opts.fields or data.keys()]
+
         logging.debug(fields)
-        print(opts.separator.join(fields))
+        printer.print(fields)
+
+    printer.flush()
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
