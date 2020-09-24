@@ -1,0 +1,24 @@
+# what's listening on the port (OSX version)
+
+verbose=0
+cmd=$(basename "$0")
+usage="USAGE: $cmd [-v] [-h] <PORT>"
+while getopts ":hv" opt; do
+  case "${opt}" in
+    v ) verbose=1
+      ;;
+    h ) echo "$usage" 
+      ;;
+  esac
+  shift $((OPTIND -1))
+done
+
+PORT="${1:?Port required: $usage}"
+lsof -nP -iTCP:$PORT | grep LISTEN
+found=$?
+
+# give more details
+if [ "$found" = 0  ]  && [ "$verbose" = "1" ] ; then
+  pid=$(lsof -nP -iTCP:$PORT | grep LISTEN | awk '{print $2}' | head -1)
+  ps auxw "$pid"
+fi

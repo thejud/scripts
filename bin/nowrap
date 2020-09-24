@@ -1,0 +1,5 @@
+# trim lines to terminal width
+
+COLUMNS="${COLUMNS:-`tput cols`}"
+echo "trimming output to width=$COLUMNS" > /dev/stderr
+cut -c 1-$COLUMNS

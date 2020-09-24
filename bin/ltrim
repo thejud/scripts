@@ -1,0 +1,2 @@
+# delete leading spaces
+perl -pE's/^\s*//'; 
