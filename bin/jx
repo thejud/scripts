@@ -1,34 +1,43 @@
 #!/usr/bin/env python
 """trivial field extractor for json
 
-This is intended to be used to trivially extract fields from json data.
-TSV format is the default output format, but can be changed with the -s
-nested json can be flattened, and nested levels are separated by _ or
-the -d option.
-jx also provide (basic) flattening 
+jx is intended to be used to trivially extract fields from json data.
+Text table format is the default output format, but can be changed to 
+TSV with the -t option, or to another delimiter with with the -d option.
 
-jq is a much better alternative for many things, but it's quite verbose
-to extract multiple fields from json as columns.
+jx also provide (basic) flattening for extracting nested fields.
+nested json can be flattened with --flatten, and if so, nested keys
+can be references with the syntax key1 + _ + key2 + index
+e.g. name_first or addresses_0_zipcode
+Use --join to join keys with a different delimiter, like "."
+
+jq is a much better alternative for many things, but for my
+comon use case of slicing out some fields, it's overly verbose.
 
 EXAMPLES:
     # field extraction
     $ echo '{"a": 1, "b": 2, "c":3}' | jx c a
-    c	a
-    3	1
+    c  a
+    3  1
+
+    # columnar output is the default. No fields prints all values
+    $ printf '{"a": "foo", "b": 1}\n{"a":"loooooong", "b":2}' | jx 
+    foo        1
+    loooooong  2
 
     # no headers
     $ echo '{"a": 1, "b": 2, "c":3}' | jx -H c a
-    3	1
+    3  1
 
     # flatten
     $ echo '{"a": {"b": 2, "c":3, "d":[5,6] }}' | jx -F a_c a_b
-    a_c	a_b
-    3	2
+    a_c  a_b
+    3    2
 
     # flatten with array indexing
     $ echo '{"a": {"b": 2, "c":3, "d": [7,10]}}' | jx -F a_c a_d_0
-    a_c	a_d_0
-    3	7
+    a_c	 a_d_0
+    3    7
 
     # get field names from first line
     echo '{"a": 1, "b": 2, "c":3}' | jx --names
@@ -36,20 +45,21 @@ EXAMPLES:
     b
     c
 
-    # alternate json level delimiter. Default is tab.
-    $  echo '{"a": {"b": 2, "c":3, "d":[5,6] }}' | jx -F -d. a.c a.b
-    a.c	a.b
-    3	2
+    # alternate json level joiner. Default is '.'
+    $  echo '{"a": {"b": 2, "c":3, "d":[5,6] }}' | jx -F -j. a.c a.b
+    a.c  a.b
+    3    2  
     
-    # alternate output separator
+    # tab-separated output
+    $ echo '{"a":1, "b": 2, "c":3}' | jx  -t a c
+    a	c
+    1	3
+
+    # alternate output delimiter
     $ echo '{"a":1, "b": 2, "c":3}' | jx  -s '|'  a c
     a|c
     1|3
 
-    # columnar output. Uses the linux `column` command
-    $ printf '{"a": "foo", "b": 1}\n{"a":"loooooong", "b":2}' | jx -c
-    foo        1
-    loooooong  2
 
 
 
@@ -61,15 +71,13 @@ TODO:
 
 from __future__ import print_function
 import argparse
-import fileinput
 import json
 import logging
-import subprocess
 import sys
 
 class Flattener:
-    def __init__(self, delimiter="_"):
-        self.delimiter = delimiter
+    def __init__(self, joiner="_"):
+        self.joiner = joiner
 
     def flatten(self, data, out=None, prefix=None):
         out = {} if out is None else out
@@ -82,7 +90,7 @@ class Flattener:
             for counter, value in enumerate(data):
                 self.flatten(value, out, prefix + [counter])
         else:
-            key = self.delimiter.join([str(s) for s in prefix])
+            key = self.joiner.join([str(s) for s in prefix])
             logging.debug(f"writing {data} to {key}")
             out[key] = data
         return out
@@ -102,36 +110,39 @@ class ColumnPrinter:
                 widths))))
 
 
-class JoiningPrinter:
-    def __init__(self, delimiter):
-        self.delimiter=delimiter
+class DelimitedPrinter:
+    def __init__(self, joiner):
+        self.joiner=joiner
 
     def print(self, columns):
-        print(self.delimiter.join(columns))
+        print(self.joiner.join(columns))
+    
+    def flush(self):
+        pass
 
 def parse_args():
-    parser = argparse.ArgumentParser("jsoncut - extract simple fields from json")
-    parser.add_argument('--flatten', '-F', action='store_true',
-            help='flatten json before selecting'
+    parser = argparse.ArgumentParser(description="extract fields easily from json")
+
+    group=parser.add_mutually_exclusive_group()
+    group.add_argument('-t', '--tsv', action='store_const', const="\t",
+            dest="delimiter", help='tab-delimited output. Also see --delimiter',
     )
-    parser.add_argument('--column', '-c', action='store_true',
-            help='column output')
-    parser.add_argument('--delimiter', '-d',
-            help='delimiter for json levels, default is %(default)',
+    group.add_argument('-d', '--delimiter', help='delimiter for json fields/columns'
+    )
+
+    parser.add_argument('-F', '--flatten', action='store_true',
+            help='flatten json before selecting. uses the --joiner'
+    )
+    parser.add_argument('-j', '--joiner',
+            help='joiner for flattening levels, e.g. key1_key2, default is %(default)s',
             default='_'
     )
-    parser.add_argument('--separator', '-s',
-            help='delimiter for json fields, default is "\t"',
-            default="\t"
-    )
-    parser.add_argument('--headers', '-H', action='store_true',
+    parser.add_argument('-H', '--headers', action='store_true',
             help="skip header printng"
     )
-
-    parser.add_argument('--names', '-n', action='store_true',
+    parser.add_argument('-n', '--names', action='store_true',
             help='show column names from initial object and exit'
     )
-
     parser.add_argument('fields', nargs="*",
             help="list of field names to extract")
 
@@ -140,12 +151,12 @@ def parse_args():
 def run():
     opts = parse_args()
     out=sys.stdout
-    if opts.column:
-        printer = ColumnPrinter()
+    if opts.delimiter is not None:
+        printer = DelimitedPrinter(opts.delimiter)
     else:
-        printer = JoiningPrinter(opts.separator)
+        printer = ColumnPrinter()
 
-    flattener = Flattener(delimiter=opts.delimiter)
+    flattener = Flattener(joiner=opts.joiner)
 
     if opts.fields and not opts.headers:
         printer.print(opts.fields)
