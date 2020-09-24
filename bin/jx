@@ -121,28 +121,23 @@ class DelimitedPrinter:
         pass
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="extract fields easily from json")
+    parser = argparse.ArgumentParser(
+            description="%(prog)s extract fields easily from json")
 
     group=parser.add_mutually_exclusive_group()
     group.add_argument('-t', '--tsv', action='store_const', const="\t",
-            dest="delimiter", help='tab-delimited output. Also see --delimiter',
-    )
-    group.add_argument('-d', '--delimiter', help='delimiter for json fields/columns'
-    )
+            dest="delimiter", help='tab-delimited output. Also see --delimiter')
+    group.add_argument('-d', '--delimiter', help='delimiter for json fields/columns')
 
     parser.add_argument('-F', '--flatten', action='store_true',
-            help='flatten json before selecting. uses the --joiner'
-    )
+            help='flatten json before selecting. uses the --joiner')
     parser.add_argument('-j', '--joiner',
-            help='joiner for flattening levels, e.g. key1_key2, default is %(default)s',
-            default='_'
-    )
+            help='joiner for keynames when flattening levels, ' + 
+                'e.g. "key1_key2". Default: %(default)s' default='_')
     parser.add_argument('-H', '--headers', action='store_true',
-            help="skip header printng"
-    )
+            help="skip header printing")
     parser.add_argument('-n', '--names', action='store_true',
-            help='show column names from initial object and exit'
-    )
+            help='show column names from initial object and exit')
     parser.add_argument('fields', nargs="*",
             help="list of field names to extract")
 
