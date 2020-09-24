@@ -40,9 +40,11 @@
     ltree1 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s"'
     ltree2 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %<(100,trunc)%s [%cn/%an] %crA"'
     ltree3 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s [%cn]"'
+    ltree4 = log --graph --topo-order --abbrev-commit --date=short --decorate --all --boundary --pretty=format:'"%Cgreen%ad %Cred%h%Creset -%C(yellow)%d    %Creset %s %Cblue[%cn]%Creset %Cblue%G?%Creset"'
     l1 = !git ltree1
     l2 = !git ltree2
     l3 = !git ltree3
+    l4 =   !git ltree4
 
     logdate = log --pretty=format:'%h %cd [%an] %s' --graph --date=short
     logweek = log --pretty=format:'%h %cd [%an] %s' --graph --date=short --since=1.week
@@ -105,6 +107,17 @@
 
     # hash
     shorthash = rev-parse --short HEAD
+
+
+    ###  reviews, sumit-style
+    
+    # Quickly back up and put changes on the branch as local changees
+    uncommit = reset --soft HEAD~1
+
+    uncommitn = !sh -c 'git reset --soft HEAD~$1' -
+
+    # USAGE: git review $LOCAL_BRANCH_NAME $MR_NUMBER
+    review = !sh -c 'git fetch origin merge-requests/$2/head:review-$1 && git checkout review-$1' -
 
 [push]
   default = simple
