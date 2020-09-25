@@ -157,6 +157,8 @@ def run():
         printer.print(opts.fields)
 
     for line in sys.stdin:
+        if not line.strip(): next
+        logging.debug(f">>>{line.strip()}<" + "\n")
         data = json.loads(line.strip())
         if opts.flatten:
             data = flattener.flatten(data)

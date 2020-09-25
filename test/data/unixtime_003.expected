@@ -1,0 +1,8 @@
+this is a filter test
+foo 2020-09-25 08:10:38 UTC bar
+something else
+2020-09-25 08:11:07 UTC end
+start 2020-09-25 08:13:11 UTC
+2020-09-25 08:11:07 UTC
+0001 no-op
+9999999999999999999999 no-op

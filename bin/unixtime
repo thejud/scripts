@@ -28,13 +28,15 @@
 #   unixtime 1512238655 1512238656001 
 #
 #   # read from stdin
-#   echo 1512238655 | unixtime -
+#   echo 1512238655 | unixtime -f
 #
 #   # read from file(s)
-#   unixtime - f1 f2 f3
+#   unixtime -f f1 f2 f3
+#
+#   echo "foo 1512238655 bar" | unixtime -f
 #
 #   # string to epoch seconds
-#   date | unixtime -
+#   date | unixtime -f
 #
 #   unixtime '2017-01-01T12:23:14Z'
 
@@ -42,43 +44,57 @@ require 'date'
 require 'optparse'
 
 def parse(s, opts)
-  if /\D/.match(s)
+  match = /(\d{9,17})/.match(s)
+  if ! match and !opts[:filter]
+    puts "MATCHING NON-DATE"
     puts DateTime.parse(s).strftime(opts[:fmt])
-  else
-    if s.size > 12
-      t = s.to_i/1000.0  # milliseconds
-    else
-      t = s.to_f
-    end
-    out = opts[:utc] ? Time.at(t).utc : Time.at(t)
-
-    if opts[:resolution] > 1
-      puts out.strftime('%F %T.%L %z')
-    else
-      puts out
-    end
+    return
   end
+
+  timet = match[0]
+  if timet.size > 12
+    t = timet.to_i/1000.0  # milliseconds
+  else
+    t = timet.to_f
+  end
+  out = opts[:utc] ? Time.at(t).utc : Time.at(t)
+
+  if opts[:resolution] > 1
+    out = out.strftime('%F %T.%L %z')
+  else
+    out = out.to_s
+  end
+
+  if opts[:filter]
+    puts s.sub(timet, out)
+  else
+    puts out
+  end
+
 end
 
 opts = {resolution: 1, fmt: '%s'}
 OptionParser.new do |o|
   o.banner = "USAGE: #{File.basename($0)} [options] {- | (date|unixtime)... }" 
   o.on('--utc', '-u', 'UTC output') do
-    opts[:utc] = TRUE
+    opts[:utc] = true
   end
   o.on('--millis', '-m', 'millisecond output') do
     opts[:resolution] = 1000
     opts[:fmt] = '%Q'
   end
+  o.on('--filter', '-f', 'replace all long digit sequences in input') do
+    opts[:filter] = true
+  end
 end.parse!
 
-if ARGV.empty?
+if ARGV.empty? and not opts[:filter]
   puts DateTime.now.strftime(opts[:fmt])
   exit 0
 end
 
 # trigger filter mode with '-'
-if ARGV[0] == '-'
+if ARGV[0] == '-' or opts[:filter]
     ARGV.shift
     vals = ARGF
 else
