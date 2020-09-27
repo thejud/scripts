@@ -1,4 +1,5 @@
 default: test
 
 test:
-	pytest -v
+	export PYTHONPATH="$$PYTHONPATH:../bin"	
+	python -m pytest
