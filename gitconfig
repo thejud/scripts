@@ -2,7 +2,7 @@
   path = .gitconfig.local
 [core]
   editor = vim
-	excludesfile = /Users/jdagnall/.gitignore
+  excludesfile = ~/.gitignore
 	autocrlf = input
 [alias]
     st = status -s
