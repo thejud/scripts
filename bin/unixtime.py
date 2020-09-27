@@ -28,24 +28,48 @@ import re
 import sys
 import time
 
+import pytz
+import tzlocal
+
+
 TIMESTAMP_FORMAT='%(asctime)s %(levelname)s - %(message)s'
 
+OFFSET=1
+UTC=2
+LOCALIZED=3
+
+class LocalizeConverter:
+    def convert_to_datetime(self, epoch, tz_format):
+        localzone = tzlocal.get_localzone()
+        timestamp = datetime.fromtimestamp(epoch, pytz.utc)
+        localtime = timestamp.replace(tzinfo=pytz.utc).astimezone(localzone)
+        return localtime.strftime(tz_format + ' %z')
+
+class UtcConverter:
+    def convert_to_datetime(self, epoch, tz_format):
+        timestamp = datetime.utcfromtimestamp(epoch)
+        return timestamp.strftime(tz_format) + 'Z'
+
+class OffsetConverter:
+    def convert_to_datetime(self, epoch, tz_format):
+        timestamp = datetime.fromtimestamp(epoch)
+        return timestamp.strftime(tz_format) + time.strftime(" %z")
 
 class UnixTimeParser:
-    def __init__(self, utc_output=False, int_output=True):
-        self.utc_output = utc_output
-        pass
+    def __init__(self, tz_output=OFFSET, int_output=True):
+        self.tz_output = tz_output
+        self.tz_format= '%Y-%m-%d %H:%M:%S'
+        if tz_output==LOCALIZED:
+            self.converter = LocalizeConverter()
+        elif tz_output==UTC:
+            self.converter = UtcConverter()
+        else:
+            self.converter = OffsetConverter()
+
 
     def format_datetime(self, epoch):
-        if self.utc_output:
-            timestamp = time.localtime(float(epoch))
-            st = time.strftime('%Y-%m-%d %H:%M:%S.%f', epoch)[:-3]
-            return st + time.strftime(' %z')
-        else:
-            timestamp = time.gmtime(float(epoch))
-            st = time.strftime('%Y-%m-%d %H:%M:%S.%f', epoch)[:-3]
-            return st + " UTC"
-        return 
+        return self.converter.convert_to_datetime(epoch, self.tz_format)
+
 
     def parse_digits(self, chars):
         if len(chars) > 10:
@@ -54,11 +78,11 @@ class UnixTimeParser:
             epoch = self.parse_unix(chars)
         return self.format_datetime(epoch)
 
-    def parse_unix(self, line):
-        return int(line)
+    def parse_unix(self, chars):
+        return int(chars)
 
-    def parse_java(self, line):
-        return int(line)/1000
+    def parse_java(self, chars):
+        return int(chars)/1000
 
 def parse_args(args=None):
     desc="generate, parse and convert to/from unix-style timestamps"
