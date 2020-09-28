@@ -25,6 +25,7 @@ from datetime import datetime
 import argparse
 import logging
 import re
+import six
 import sys
 import time
 
@@ -56,6 +57,16 @@ class OffsetConverter:
         return timestamp.strftime(tz_format) + time.strftime(" %z")
 
 class UnixTimeParser:
+
+    DATE_PATTERNS = [
+        '%Y-%m-%d %H:%M:%SZ',       # 2020-09-27 11:45:31 -0700
+        '%Y-%m-%d %H:%M:%S %z',     # 2020-09-27 11:45:31 -0700
+        '%Y-%m-%dT%H:%M:%S%z',      # 2020-09-27T11:45:31-0700
+        '%Y-%m-%d %H:%M:%S',        # 2020-09-27 11:45:31
+        '%a %b %d %H:%M:%S %Y',     # Sun Sep 27 11:45:31 2020
+    ]
+
+
     def __init__(self, tz_output=OFFSET, int_output=True):
         self.tz_output = tz_output
         self.tz_format= '%Y-%m-%d %H:%M:%S'
@@ -68,7 +79,7 @@ class UnixTimeParser:
 
 
     def format_datetime(self, epoch):
-        return self.converter.convert_to_datetime(epoch, self.tz_format)
+        return self.converter.convert_to_datetime(float(epoch), self.tz_format)
 
 
     def parse_digits(self, chars):
@@ -83,6 +94,33 @@ class UnixTimeParser:
 
     def parse_java(self, chars):
         return int(chars)/1000
+
+    def parse_date(self, chars):
+        for pattern in self.DATE_PATTERNS:
+            try:
+                logging.debug(f"trying '{chars}' against pattern: '{pattern}'")
+                ts = datetime.strptime(chars, pattern)
+                return str(int(ts.timestamp()))
+            except ValueError:
+                pass
+        raise ValueError('unparsable date: ' + chars)
+    
+    def filter_line(self, line):
+        epoch_pattern = re.compile(r'\d{9,14}')
+        match = epoch_pattern.search(line)
+        if match:
+            epoch = match.group()
+            converted = self.parse_digits(epoch)
+            return line.replace(epoch, converted)
+        elif line.strip():
+            stripped = line.strip()
+            try:
+                epoch = self.parse_date(stripped)
+                return line.replace(stripped, str(epoch))
+            except ValueError:
+                print(f"didn't parse '{stripped}'")
+                pass
+        return line
 
 def parse_args(args=None):
     desc="generate, parse and convert to/from unix-style timestamps"
