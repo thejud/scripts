@@ -11,6 +11,8 @@ nnoremap \ ,
 set relativenumber
 set number
 set visualbell
+" disable visual bell flashing, really annoying with dark schemes
+set t_vb= 
 
 " ruby fun
 " quick enter for the ruby end block
@@ -306,12 +308,13 @@ endfunc
 set pastetoggle=<leader>z
 
 " paste from the system clipboard, avoiding need to toggle paste mode
-noremap <Leader>pa "*p
-vmap <C-c> :w !pbcopy<CR><CR> 
-noremap <Leader>pi "*p
+"noremap <Leader>pa *p
+noremap <Leader>pa :r !pbpaste<CR>
+vmap <C-c> :r !pbpaste<CR><CR> 
 
 " copy to the system clipboard (the plus register)
-noremap <Leader>cp "*y
+"noremap <Leader>cp "*y
+noremap <Leader>cp :w !pbcopy<CR>
 vmap <C-x> :!pbcopy<CR>  
 vmap <C-c> :w !pbcopy<CR><CR> 
 
@@ -421,7 +424,8 @@ noremap <Leader>h :set cursorline!<CR>
 " other color customizations
 
 "colorscheme MayanSmoke
-colorscheme SummerFruit256
+"colorscheme SummerFruit256
+colorscheme pablo
 
 set cursorline
 :hi CursorLine term=bold cterm=bold guibg=Grey20
@@ -440,4 +444,7 @@ nnoremap <Leader>vs :source $MYVIMRC<CR>
 " write and source the current file. For vimscript creation.
 inoremap <Leader>S <esc>:write<cr>:source %<cr>
 nnoremap <Leader>S :write<cr>:source %<cr>
+
+" go to tag with ctrl-p
+nnoremap <leader>. :CtrlPTag<cr>
 
