@@ -50,6 +50,7 @@ def parse(s, opts)
       puts s
     else
       puts DateTime.parse(s).strftime(opts[:fmt])
+    end
     return
   end
 
@@ -104,5 +105,5 @@ else
 end
 
 vals.each do |v|
-  parse(v.strip, opts)
+  parse(v, opts)
 end
