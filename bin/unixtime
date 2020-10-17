@@ -45,9 +45,11 @@ require 'optparse'
 
 def parse(s, opts)
   match = /(\d{9,17})/.match(s)
-  if ! match and !opts[:filter]
-    puts "MATCHING NON-DATE"
-    puts DateTime.parse(s).strftime(opts[:fmt])
+  if !match 
+    if opts[:filter]
+      puts s
+    else
+      puts DateTime.parse(s).strftime(opts[:fmt])
     return
   end
 
@@ -96,7 +98,7 @@ end
 # trigger filter mode with '-'
 if ARGV[0] == '-' or opts[:filter]
     ARGV.shift
-    vals = ARGF
+    vals = ARGF.readlines
 else
   vals = ARGV
 end
