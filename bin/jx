@@ -122,12 +122,17 @@ class ColumnPrinter:
         self.rows.append(columns)
 
     def flush(self):
+        # logging.debug("rows: %s", self.rows)
+
+        # compute the width for each column, by taking the max of each field's
+        # width. Note that this takes the number of columns from the first row.
         # https://stackoverflow.com/a/12065663
+
         widths = [max(map(len, col)) for col in zip(*self.rows)]
+        logging.debug("column widths: %s", widths)
         for row in self.rows:
             print("  ".join((val.ljust(width) for val, width in zip(row,
                 widths))))
-
 
 class DelimitedPrinter:
     def __init__(self, joiner):
@@ -215,7 +220,13 @@ def run():
             for k in data.keys():
                 print(k)
             return
+
         logging.debug(data.keys())
+
+        if not opts.headers and not opts.fields:
+            logging.warning("taking field names from first line. use -H to disable")
+            opts.fields = data.keys()
+            printer.print(opts.fields)
 
         # if we have a list of fields, use them. Otherwise, print all keys
         fields = [ str(data.get(f, "")) for f in opts.fields or data.keys()]
