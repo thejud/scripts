@@ -1,0 +1,2 @@
+# remove trailing newline
+perl -pe'chomp'

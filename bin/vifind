@@ -1,0 +1,2 @@
+# edit a file on your path
+vi `type -p $1`
