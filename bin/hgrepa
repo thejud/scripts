@@ -1,0 +1,2 @@
+set -x
+grep "$@" ~/.persistent_history

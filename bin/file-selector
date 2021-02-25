@@ -1,0 +1,49 @@
+# given a list of files, show each one via less and then provide
+# a simple y/n prompt about picking the file.
+# output is written to a time-stamped file
+
+COMMAND=less
+
+while getopts "vehcq" o; do
+    case "${o}" in
+        v)
+            COMMAND='vi' 
+            ;;
+        c)
+            COMMAND='cat' 
+            ;;
+        h)
+            COMMAND='head' 
+            ;;
+        e)
+            COMMAND="$EDITOR"
+            ;;
+        q)
+            QUIET='true'
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+ds=$(date +%Y-%m-%dT%H%M%S)
+outfile="/tmp/select.$ds"
+
+echo "writing output to: $outfile" > /dev/stderr
+
+for f in $@; do
+  $COMMAND $f 
+  read -p "keep $f (y/n): " answer
+  printf "$f\t$answer\n" >> "$outfile"
+done
+
+if [ -z "$QUIET" ]; then
+  echo "-------- selected -----" > /dev/stderr
+  egrep 'y$' "$outfile" | awk '{print $1}'
+
+  echo "----------------------" > /dev/stderr
+fi
+
+echo "output written to: $outfile" > /dev/stderr
