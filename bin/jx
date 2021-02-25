@@ -65,6 +65,11 @@ EXAMPLES:
     a|c
     1|3
 
+    # collapse whitespace in output fields, useful for columnar output
+    $ echo '{"first": "Jud D"}' | jx -w 
+    first
+    Jud_D
+
     # smart parsing: autodetect arrays
     $ echo '[{'a':1},{'a':2}]' | jx a
     a
@@ -167,6 +172,8 @@ def parse_args():
             help='disable smart detection of arrays and paginated results')
     parser.add_argument('-D', '--debug', action='store_true',
             help='debug')
+    parser.add_argument('-w', '--whitespace', action='store_true',
+            help="translate whitespace to _ in fields")
     parser.add_argument('fields', nargs="*",
             help="list of field names to extract")
 
@@ -230,6 +237,9 @@ def run():
 
         # if we have a list of fields, use them. Otherwise, print all keys
         fields = [ str(data.get(f, "")) for f in opts.fields or data.keys()]
+        
+        if opts.whitespace:
+            fields = [ f.replace(" ", "_") for f in fields]
 
         logging.debug(fields)
         printer.print(fields)
