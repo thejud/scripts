@@ -3,10 +3,12 @@ set modelines=0       " avoid security hole with running code on load
 set nocompatible      " We're running Vim, not Vi!
 execute pathogen#infect()
 
-" map our prefix key to comma, and map \ back to the reverse character search,
+" map our prefix key to semicolor, and map . back to the next
 " which is the default leader key
-let mapleader = ','
-nnoremap \ ,
+let mapleader = ';'
+"nnoremap \ ,
+noremap s ;
+"noremap <Space> .
 
 set relativenumber
 set number
@@ -79,7 +81,7 @@ autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 
 set wildmenu          " show autocomplete commands
 " make autocompletion work like the shell
-:set wildmode=list:longest
+:set wildmode=list:longest,list,full
 
 :map <F2> :set nohls!<CR>:set nohls?<CR>   " toggle search highlighting
 ":map K !} fmt -72                        " wrap to 72 lines
@@ -399,7 +401,7 @@ nnoremap <Leader>pm :CtrlPMRU<CR>
 nnoremap <Leader>pr :CtrlPMRU<CR>
 
 " format via black
-nnoremap <Leader>bb :%!black -q -<CR>
+"nnoremap <Leader>bb :%!black -q -<CR>
 
 
 " Align line-wise comment delimiters flush left instead of following code indentation
@@ -447,4 +449,7 @@ nnoremap <Leader>S :write<cr>:source %<cr>
 
 " go to tag with ctrl-p
 nnoremap <leader>. :CtrlPTag<cr>
+
+" go to buffer - trailing space is necessary
+nnoremap <leader>bb :buffers<CR>:buffer<space>
 
