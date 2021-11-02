@@ -1,0 +1,3 @@
+# remove horizontal whitespace from left side of input
+
+perl -pe's/^\h+//' "$@"
