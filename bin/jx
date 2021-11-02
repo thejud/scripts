@@ -120,7 +120,8 @@ class Flattener:
         return out
 
 class ColumnPrinter:
-    def __init__(self):
+    def __init__(self, joiner="  "):
+        self.joiner = joiner
         self.rows = []
 
     def print(self, columns):
@@ -136,8 +137,11 @@ class ColumnPrinter:
         widths = [max(map(len, col)) for col in zip(*self.rows)]
         logging.debug("column widths: %s", widths)
         for row in self.rows:
-            print("  ".join((val.ljust(width) for val, width in zip(row,
-                widths))))
+            padded = [val.ljust(width) for val, width in zip(row, widths)]
+            if padded:
+                padded[-1] = row[-1] # don't pad the last field
+                line = self.joiner.join(padded)
+                print(line)
 
 class DelimitedPrinter:
     def __init__(self, joiner):
