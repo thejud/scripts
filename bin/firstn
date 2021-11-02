@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+# print the first line of each file, along with the filename
+
+import sys
+
+
+for fn in sys.argv:
+  with open(fn) as fh:
+    first = fh.readline()
+    print(f"{fn}: {first}")
+    fh.close()
