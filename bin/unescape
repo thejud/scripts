@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+# unescape some common backslashed characters
+
+while(<>) {
+  s/\\t/\t/g;
+  s/\\n/\n/g;
+  s{\\"}{"}g;
+  print;
+}
