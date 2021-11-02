@@ -119,6 +119,12 @@
     # USAGE: git review $LOCAL_BRANCH_NAME $MR_NUMBER
     review = !sh -c 'git fetch origin merge-requests/$2/head:review-$1 && git checkout review-$1' -
 
+    # pretty print reflog with timestamp
+    rl = reflog --pretty=reflog
+
+[pretty]
+    reflog = %C(auto)%h %<|(20)%gd %C(blue)%cr%C(reset) %gs (%s)
+
 [push]
   default = simple
 [difftool "sourcetree"]
