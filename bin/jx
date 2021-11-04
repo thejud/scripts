@@ -71,7 +71,13 @@ EXAMPLES:
     Jud_D
 
     # smart parsing: autodetect arrays
-    $ echo '[{'a':1},{'a':2}]' | jx a
+    echo '[{"a":1},{"a":2}]' | jx a
+    a
+    1
+    2
+
+    # smart detecting multiline arrays (json pretty printed)
+    echo '[{"a":1},{"a":2}]' | jq | jx a
     a
     1
     2
@@ -81,6 +87,9 @@ EXAMPLES:
     a
     1
     2
+
+    # smart detecting multiline paged sets (json pretty printed)
+    echo '{"items":[{"a":1},{"a":2}]}' | jq | jx a
 
     # turn off smart parsing
     $ echo '{"total":2,"items":[{"a":1},{"a":2}]}' | jx -s items
@@ -139,7 +148,7 @@ class ColumnPrinter:
         for row in self.rows:
             padded = [val.ljust(width) for val, width in zip(row, widths)]
             if padded:
-                padded[-1] = row[-1] # don't pad the last field
+                padded[-1] = list(row)[-1] # don't pad the last field
                 line = self.joiner.join(padded)
                 print(line)
 
@@ -183,31 +192,43 @@ def parse_args():
 
     return parser.parse_args()
 
+def parse_first(first_line, fh, opts):
+    logging.debug('smartly checking first line: %s', first_line)
+    stripped = first_line.strip()
+    if stripped.startswith('['):
+        logging.info("array detected")
+        if stripped == '[':
+            logging.info("multiline array detected")
+            first_line = first_line + fh.read()
+        return json.loads(first_line)
+
+    if stripped == '{':     
+        logging.info("multiline json object detected.")
+        first_line = first_line + fh.read()
+
+    parsed = json.loads(first_line)
+    if opts.smart and 'items' in parsed:
+        logging.info('smart detected a paged set')
+        return parsed['items']
+    
+    # standard obect on the first line
+    return [parsed]
+
+
 def read(fh, opts):
-    first = True
-    for line in fh:
+    first_line = ""
+    while first_line.strip() == "": 
+        first_line = fh.readline()
+
+    for parsed_row in parse_first(first_line, fh, opts):
+        yield parsed_row
+
+    for line in fh:  # one object per line
+        logging.debug(f">>>{line.strip()}<" + "\n")
         if not line.strip(): 
             logging.debug('skipping')
-            next
-        logging.debug(f">>>{line.strip()}<" + "\n")
-        if opts.smart and first:
-            logging.debug('smartly checking first line')
-            first = False
-            if line.startswith('['):
-                logging.info('smart detected an array')
-                for item in json.loads(line):
-                    yield item
-            else:
-                logging.debug('checking pagination')
-                parsed = json.loads(line)
-                if 'items' in parsed and 'total' in parsed:
-                    logging.info('smart detected a paged set')
-                    for item in parsed['items']:
-                        yield  item
-                else:
-                    yield parsed
-        else:
-            yield json.loads(line)
+            continue
+        yield json.loads(line)
 
 def run():
     opts = parse_args()
