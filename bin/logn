@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""
+NAME:
+
+  logn:
+
+DESCRIPTION:
+
+
+AUTHOR:
+
+  Jud Dagnall <github@dagnall.net>
+
+EXAMPLES:
+
+    # common usage:
+    seq 11 | logn 
+
+"""
+
+from __future__ import print_function
+
+import argparse
+import logging
+import math
+import sys
+
+LOG_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+
+
+def parse_args(args=None):
+    desc="Compute the logarithm of a series of numbers"
+    p = argparse.ArgumentParser(description=desc)
+    group = p.add_mutually_exclusive_group()
+    group.add_argument('-b', '--base', type=int, 
+        help='base to use. default=%(default)s', default=10)
+    group.add_argument('-2', '--base2', action='store_true', help='base 2')
+    group.add_argument('-e', '--natural', action='store_true', 
+        help='use the natural log (base e)')
+    p.add_argument('infile', help='file to read, or STDIN', nargs='?',
+        type=argparse.FileType(), default=sys.stdin)
+  
+    # accept arguments as a param, so we
+    # can import and run this module with a commandline-like
+    # syntax.
+    if args is None: 
+        args = sys.argv[1:]
+    return p.parse_args(args)
+
+
+def run(opts):
+    logging.debug("starting")
+    if opts.natural: 
+        fn=math.log
+    elif opts.base2:
+        fn = lambda n : math.log(n, 2)
+    else:    
+        fn = lambda x : math.log(x, opts.base)
+
+    for line in opts.infile:
+        print(fn(float(line.strip())))
+
+
+if __name__ == '__main__':
+    opts = parse_args(sys.argv[1:])
+    logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    run(opts)
