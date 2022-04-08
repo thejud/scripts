@@ -12,6 +12,10 @@ DESCRIPTION:
         * only the second (b - a)
         * in both (a intersect b)
 
+    optionally:
+
+        * unique 
+
     There are other similar tools (like comm and zet), but jset provides
     shortcuts for visualizing and the data in tabular format, list format, json
     format and also provides some easy aliases to aid in understanding.
@@ -28,11 +32,53 @@ EXAMPLES:
     seq 6 4 > b
     echo 99 >> b
 
-    jset.py a b
+    $ jset.py a b
+      ---------- only_a a ----------
+      1
+      10
+      2
+      3
+      7
+      8
+      9
+      ---------- only_b b ----------
+      99
+      ---------- both  ----------
+      4
+      5
+      6
 
-    jset.py -T a b
+    $ jset.py -T a b
+          only_a    only_b    both
+      --------  --------  ------
+      1
+      10
+      2
+      3
+                          4
+                          5
+                          6
+      7
+      8
+      9
+                99
 
-    jset -1  a b
+
+    $ jset.py --both  a b
+      4
+      5
+      6
+
+    $ jset.py --unique a b
+
+      1
+      10
+      2
+      3
+      7
+      8
+      9
+      99
 
 """
 
@@ -49,9 +95,12 @@ def parse_args(args=None):
     desc="set difference and intersection"
     p = argparse.ArgumentParser(description=desc)
     #p.add_argument('', help="default: %(default)s", default='')
-    p.add_argument('-1', '--first', '--only-first', action='store_true')
-    p.add_argument('-2', '--second', '--only-second', action='store_true')
+    p.add_argument('-1', '--first', '--only-first', action='store_true', 
+    help="a - b. In first, but not second." )
+    p.add_argument('-2', '--second', '--only-second', action='store_true',
+            help="b - a. In second, but not first.")
     p.add_argument('-3', '-x', '--both', '--intersect', action='store_true')
+    p.add_argument('-u', '--uniq', action='store_true')
     p.add_argument('-j', '--json', action='store_true')
     p.add_argument('-T', '--table', action='store_true', help="tabulate format")
     p.add_argument('a', type=argparse.FileType('r'))
@@ -110,6 +159,8 @@ def run(opts):
         print_join(out['only_b'])
     elif opts.both:
         print_join(out['both'])
+    elif opts.uniq:
+        print_join(out['only_a'] + out['only_b'])
     elif opts.json:
         print(json.dumps(out, indent=2))
     elif opts.table:
