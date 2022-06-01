@@ -95,6 +95,13 @@ EXAMPLES:
     $ echo '{"total":2,"items":[{"a":1},{"a":2}]}' | jx -s items
     items
     [{"a":1},{"a":2}]}
+
+    # extract all keys from all objects
+    printf '{"b":1,"a":2}\n{"b":2,"c":3}' | jx --all-keys
+    b
+    a
+    c
+
     
 TODO:
     Add positional field extraction. Will require validation of fields on every
@@ -180,6 +187,8 @@ def parse_args():
             help="skip header printing")
     parser.add_argument('-n', '--names', action='store_true',
             help='show column names from initial object and exit')
+    parser.add_argument('-N', '--all-names', action='store_true',
+            help="print key names from all objects in the order they appear")
     parser.add_argument('-s', '--smart', action='store_false',
             default='True',
             help='disable smart detection of arrays and paginated results')
@@ -215,7 +224,7 @@ def parse_first(first_line, fh, opts):
     return [parsed]
 
 
-def read(fh, opts):
+def read(fh, opts) -> dict:
     first_line = ""
     while first_line.strip() == "": 
         first_line = fh.readline()
@@ -229,6 +238,18 @@ def read(fh, opts):
             logging.debug('skipping')
             continue
         yield json.loads(line)
+
+
+def print_all_keys(objects, flattener=None) -> None:
+    seen_keys = set()
+    for ob in objects:
+        if flattener:
+            ob = flattener.flatten(ob)
+        for key in ob.keys():
+            if key not in seen_keys: 
+                print(key)
+                seen_keys.add(key)
+
 
 def run():
     opts = parse_args()
@@ -245,6 +266,12 @@ def run():
     if opts.fields and not opts.headers:
         printer.print(opts.fields)
 
+    if opts.all_names:
+        flatten = flattener if opts.flatten else None
+        print_all_keys(read(sys.stdin, opts), flattener=flatten)
+        return
+
+
     for data in read(sys.stdin, opts):
         if opts.flatten:
             data = flattener.flatten(data)
@@ -252,6 +279,7 @@ def run():
             for k in data.keys():
                 print(k)
             return
+
 
         logging.debug(data.keys())
 
