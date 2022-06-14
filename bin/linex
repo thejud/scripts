@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+"""
+NAME:
+
+  linex: Simple line extractor to print one or more lines from a file or files
+
+DESCRIPTION:
+
+    Simply extract a line, a set of lines, and/or a range of lines from a file
+    by their (1-indexed) line numbers.
+
+
+AUTHOR:
+
+  Jud Dagnall <github@dagnall.net>
+
+EXAMPLES:
+
+    # common usage:
+    # print line n
+    seq 10 | linex 3
+    3
+
+    # print a range of lines
+    seq 10 | linex 3,5-7
+    3
+    5
+    6
+    7
+
+    # print all except a range of lines
+    seq 5 | linex -v 1,3,4
+    2
+    5
+
+    # extract lines from a file
+    linex 100-105 firstfile secondfile
+
+
+"""
+
+from __future__ import print_function
+
+import argparse
+import logging
+import sys
+
+LOG_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+
+
+def parse_args(args=None):
+    desc=""
+    p = argparse.ArgumentParser(description=desc)
+    p.add_argument('-v', '--invert', help="exclude matching lines",
+        action='store_true')
+    p.add_argument('wanted', help='line selection')
+    p.add_argument('file', nargs='?', type=argparse.FileType('r'),
+            help="file to read, default is stdin")
+  
+    # accept arguments as a param, so we
+    # can import and run this module with a commandline-like
+    # syntax.
+    if args is None: 
+        args = sys.argv[1:]
+    return p.parse_args(args)
+
+
+def parse_wanted(wanted_lines):
+    wanted = set()
+    for item in opts.wanted.split(","):
+        if '-' in item:
+            first, last = item.split('-', 2)
+            for i in range(int(first), int(last)+1): 
+                wanted.add(i)
+        else:
+            wanted.add(int(item))
+    return wanted
+
+def run(opts):
+    wanted = parse_wanted(opts.wanted)
+    if not opts.file:
+        opts.file=sys.stdin
+        if sys.stdin.isatty():
+            logging.info("reading from stdin")
+
+    current_line = 0
+    for line in opts.file:
+        current_line  += 1
+        if current_line in wanted:
+            wanted.remove(current_line)
+            if not opts.invert:
+                print(line, end="")
+                if not wanted:
+                    return
+        elif opts.invert:
+            print(line, end="")
+            
+if __name__ == '__main__':
+    opts = parse_args(sys.argv[1:])
+    logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+    run(opts)
