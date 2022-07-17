@@ -8,11 +8,13 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long qw(:config gnu_getopt);
-use Log::Log4perl qw(:easy);
 use File::Find::Rule;
 use IO::File;
-use IO::Interactive qw(is_interactive);
 use File::Temp;
+
+# CPAN modules
+use IO::Interactive qw(is_interactive);
+use Log::Log4perl qw(:easy);
 use Sysadm::Install qw(cp ask slurp say);
 
 my  $VERSION = "0.01";
@@ -141,7 +143,7 @@ Log::Log4perl->get_logger()->more_logging($opts{debug}) if $opts{debug};
 WARN "DRY RUN" if $opts{dry_run};
 
 my $pattern = shift @ARGV       or pod2usage( "pattern required" );
-my $replacement = shift @ARGV   or pod2usage( "replacement required" );
+my $replacement = shift @ARGV   // pod2usage( "replacement required" );
 
 $pattern = "(?i)$pattern" if $opts{ignore_case};
 
@@ -278,9 +280,20 @@ the target file.
   # read file list from a file (STDIN)
   $ find . -mtime +1 | resub -f - foo bar 
 
+  # remove uncessary brackets from lines starting with ':tags '
+  # use an empty pattern to delete 
+  $ resub -m '^tags: ' '\[|\]' "" *.md
+
+
 =head1 FILES
 
   None
+
+=head1 DEPENDENCIES
+
+  Log::Log4perl
+  IO::Interactive
+  Sysadm::Install
 
 =head1 LEGALESE
 
