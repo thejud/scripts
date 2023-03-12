@@ -1,0 +1,4 @@
+# Convert an array of json objects into one per line
+# the JSONL format.
+
+jq -c '.[]' "$@"

@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+"""
+simple jsonl pretty printer - handles one json object per line like jq, but also
+correctly handles big-int values.
+"""
+
+from __future__ import print_function
+
+import fileinput
+import json
+
+for line in fileinput.input():
+  print(json.dumps(json.loads(line.rstrip()), indent=2))

@@ -1,0 +1,2 @@
+# convert json object per line into an array of json objects 
+jq -s . "$@"
