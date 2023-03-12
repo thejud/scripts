@@ -21,26 +21,28 @@
 
     co = checkout
     br = branch
+    brn = branch --show-current
+    brname = branch --show-current
     #"!git branch -ra | grep -v done"
     bra = branch -ra
 
     #list commands
     la = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s"'
-    laa = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s >> %C(blue)%d%C(reset)"'
+    laa = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s >> %C(green)%d%C(reset)"'
     le = log --oneline --decorate
-    ll = log --pretty='format:"%C(yellow)%h%Cred%d %Creset%s%Cblue [%cn] %cd"' --decorate --numstat
+    ll = log --pretty='format:"%C(yellow)%h%C(brightred)%d %Creset%s%Cgreen [%cn] %cd"' --decorate --numstat
     lf = log --name-status --pretty=short --graph
-    ls1 = log --pretty=format:'"%C(yellow)%h%Cred%d %Creset%s%Cblue [%cn]"' --decorate
-    lds = log --pretty=format:'"%C(yellow)%h %C(green)%ad%Cred%d %Creset%s%Cblue [%cn]"' --decorate --date=short --graph
-    ls = log --pretty=format:'"%C(green)%h %C(yellow)[%ad]%Cred%d %Creset%s%Cblue [%cn]"' --decorate --date=relative
+    ls1 = log --pretty=format:'"%C(yellow)%h%C(brightred)%d %Creset%s%Cgreen [%cn]"' --decorate
+    lds = log --pretty=format:'"%C(yellow)%h %C(green)%ad%C(brightred)%d %Creset%s%Cgreen [%cn]"' --decorate --date=short --graph
+    ls = log --pretty=format:'"%C(green)%h %C(yellow)[%ad]%C(brightred)%d %Creset%s%C(cyan) [%cn]"' --decorate --date=relative
     lc  = "!f() { git ll "$1"^.."$1"; }; f"
-    lnc = log --pretty=format='"%h %s [%cn]"'
+    lnc = log --pretty=format:'"%h %s [%cn]"'
 
     # tree view commands, for null merge detection and other goodness
     ltree1 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s"'
     ltree2 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %<(100,trunc)%s [%cn/%an] %crA"'
     ltree3 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s [%cn]"'
-    ltree4 = log --graph --topo-order --abbrev-commit --date=short --decorate --all --boundary --pretty=format:'"%Cgreen%ad %Cred%h%Creset -%C(yellow)%d    %Creset %s %Cblue[%cn]%Creset %Cblue%G?%Creset"'
+    ltree4 = log --graph --topo-order --abbrev-commit --date=short --decorate --all --boundary --pretty=format:'"%Cgreen%ad %C(brightred)%h%Creset -%C(yellow)%d    %Creset %s %Cgreen[%cn]%Creset %C(magenta)%G?%Creset"'
     l1 = !git ltree1
     l2 = !git ltree2
     l3 = !git ltree3
@@ -61,7 +63,7 @@
     diff = diff --word-diff
     d = diff --word-diff
     dc = diff --cached
-    
+
     diffpush = "!f(){ git diff `git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
     diffpushf = "!f(){ git log --stat HEAD ^`git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
 
@@ -81,6 +83,7 @@
     rh = reset --hard
     rh1 = reset HEAD^ --hard
     rh2 = reset HEAD^^ --hard
+    reset-remote = "!f() { git reset --hard origin/`git branch --show-current`;} ;f"
 
 
     #stash
@@ -103,7 +106,7 @@
 
     # reflog 
     reflog1 = reflog --pretty='%h %<|(20)%gd %cd | %gs'
-    reflog2 = reflog --format='%C(auto)%h %gd %C(blue)%>|(33)%cr%C(reset) | %gs (%s)'
+    reflog2 = reflog --format='%C(auto)%h %gd %C(green)%>|(33)%cr%C(reset) | %gs (%s)'
 
     # hash
     shorthash = rev-parse --short HEAD
@@ -123,7 +126,7 @@
     rl = reflog --pretty=reflog
 
 [pretty]
-    reflog = %C(auto)%h %<|(20)%gd %C(blue)%cr%C(reset) %gs (%s)
+    reflog = %C(auto)%h %<|(20)%gd %C(green)%cr%C(reset) %gs (%s)
 
 [push]
   default = simple
@@ -150,3 +153,5 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[init]
+	defaultBranch = main
