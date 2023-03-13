@@ -1,1 +1,148 @@
-ffg
+#!/usr/bin/env ruby
+#
+# Simple find file utilities
+# 
+# Often I want to find one (or all files) matching a pattern.
+# This can be accomplished by using the find command, possibly
+# piping to grep and/or head. But for the common cases, I have
+# a set of simple aliases that can be provided by symlinking
+# this script, and/or by using the provided command line flags. 
+# It also excludes some really basic things like the .git directory
+# and vim temp files.
+#
+# ff  - print files in one or more directories
+# ffg - find files matching a pattern
+# ff1 - find files, stop at first match
+# vff - open matching files vim (or EDITOR)
+#
+# EXAMPLES:
+## print all files in the current directory or below. See also tree
+#   ff
+#
+## print all files in dir1 and dir2
+#   ff dir1 dir2
+#
+## print all files in the bar and baz directory trees matching special.
+#   ffg special bar baz
+#
+## files matching a regex
+#   ffg '000[\d]' !$
+#
+## match any path under baz that path 'special'   
+#   ffg -d special baz
+#
+## find the first file that matches pat under baz. symlink as 'ff1' to trigger
+## this behavior.
+#   ffg -1 pat baz
+#
+## open the first file that starts with '^pat' in your EDITOR. symlink as 'vff1'
+## Set FF_EDITOR, VISUAL or EDITOR in order of precedence.
+#
+#   ffg -e -1 '^pat'
+
+require 'optparse'
+require 'find'
+
+########################################
+# FUNCTIONS
+########################################
+
+EXCLUDES = %W{
+  ^\\..*\\.sw.$
+  ^\\.
+}
+PATH_EXCLUDES = %W{
+  /\.git
+}
+
+def parse_args
+  o = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename(__FILE__)} [options] [[PATTERN] [PATH...]]"
+    opts.on("-h", "--help", "Show help") do
+     puts opts
+     exit
+    end
+    opts.on("-p", "--path", "Match full path, not just basename") do 
+      o[:path] = true
+    end
+    opts.on("-d", "--dir", "Match directories, not just files") do
+      o[:dirs] = true
+    end
+    opts.on("-a", "--all", "match all files, even the excluded ones") do
+      o[:all] = true
+    end
+    opts.on("-1", "--first", "stop at first match") do
+      o[:first] = true
+    end
+    opts.on("-e", "--edit", 'open files in $FF_EDITOR, $VISUAL, $EDITOR or vi') do
+      o[:edit] = true
+    end
+  end.parse!
+  return o
+end
+
+def editor
+  ENV['FF_EDITOR'] || ENV['VISUAL'] || ENV['EDITOR'] || 'vi'
+end
+
+def capture f
+  @files << f
+end
+
+def main
+  opts = parse_args
+
+  if File.basename($0).end_with? '1'
+    opts[:first] = true
+    # alias as "ff1" or something similar to trigger first find behavior
+  end
+  if File.basename($0).start_with? 'v'
+    # alias as vff to trigger open in editor
+    opts[:editor] = true
+  end
+  if File.basename($0) == 'ff'
+    # ff just does file listing
+    ARGV.unshift '.'
+  end
+
+  @files = []
+
+  pattern = ARGV.shift || '.'
+  dirs = ARGV
+  dirs << '.' if dirs.empty?
+
+  pattern = Regexp.new(pattern)
+  excludes = Regexp.new( EXCLUDES.map { |s| "(#{s})"}.join('|') )
+  path_excludes = Regexp.new( PATH_EXCLUDES.map { |s| "(#{s})"}.join('|') )
+
+  Find.find(*dirs) do |path|
+    next if FileTest.directory?(path) unless opts[:dirs]
+    basename = File.basename(path)
+
+    unless opts[:all]
+      next if excludes.match(basename)
+      next if path_excludes.match(path)
+    end
+
+    name = opts[:path] ? path : basename
+    if pattern.match(name)
+      capture(path) if opts[:edit] 
+      puts path
+      break if opts[:first]
+    end
+  end
+
+  if opts[:edit] and !@files.empty?
+    warn [editor, *@files].join(" ")
+    exec(editor, *@files)
+  end
+end
+
+########################################
+# MAIN BODY
+########################################
+
+if __FILE__ == $0    # this script can be required as a library
+  main
+end
