@@ -70,6 +70,7 @@ address  America
 """
 
 from collections import OrderedDict
+from pathlib import Path
 
 import argparse
 import csv
@@ -109,12 +110,12 @@ def write_csv(data):
     writer = csv.writer(sys.stdout)
     writer.writerows(data)
 
-def write_pretty(data, print_format, header=True):
+def write_pretty(data, print_format, header=True, outfile=sys.stdout):
     print(tabulate.tabulate(data, headers="firstrow" if header else [],
                             tablefmt=print_format,
                             numalign=None,
                             disable_numparse=True,
-                            ))
+                            ), file=outfile)
 
 def add_row_numbers(rows, column_name='rownum'):
     yield [column_name, *rows[0]]
@@ -125,13 +126,23 @@ def add_row_numbers(rows, column_name='rownum'):
 def transpose(data):
     return zip(*add_row_numbers(data, 'fieldname'))
 
-def write_long(data, print_format):
+def write_long(data, print_format, outfile=sys.stdout):
     headers = data[0]
 
     for row in data[1:]:
         transposed = list(transpose([headers, row]))
-        write_pretty(transposed[1:], print_format, header=False) 
-        print()
+        write_pretty(transposed[1:], print_format, header=False, outfile=outfile)
+        print(file=outfile)
+
+def write_long_files(data, print_format, folder):
+    headers = data[0]
+    for i, row in enumerate(data[1:]):
+        outfile = Path(folder)/str(i+1).zfill(2)
+        transposed = list(transpose([headers, row]))
+        with open(outfile, 'w') as handle:
+            write_pretty(transposed[1:], print_format, header=False, outfile=handle)
+            logging.info("wrote %s", outfile)
+
 
 def run(opts):
     logging.debug("starting")
@@ -142,6 +153,8 @@ def run(opts):
         write_pretty(data, opts.format)
     elif opts.long:
         write_long(data, opts.format)
+    elif opts.long_files:
+        write_long_files(data, opts.format, opts.long_files)
     else:
         write_csv(data)
 
@@ -152,6 +165,7 @@ def parse_args():
     parser.add_argument('-t', '--transpose', action='store_true', help='Transpose the output CSV')
     parser.add_argument('-p', '--pretty', action='store_true', help='pretty print the output')
     parser.add_argument('-l', '--long', action='store_true', help='long format. Also uses prety printing')
+    parser.add_argument('-L', '--long-files', help='write each row to a numbered output file in <folder>for diffing')
     parser.add_argument('-f', '--format', help='tabulate format for output.' +
                         'Default is %(default). options include grid, psql, markdown',
                         default='simple')
