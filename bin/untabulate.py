@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-Convert pretty-printed tabular data back into
-CSV, and/or to some convenient output formats.
+Convert pretty-printed tabular data back into CSV, and/or to some convenient
+output formats.
 
 
 spark dataframe.show(), psql and other tools sometimes
 output data in tabular format. It is useful for interactive debugging, but
-sometimes the dataframes get much to wide to view comfortable. 
+sometimes the dataframes get much to wide to view comfortable.
 
 Untabulate provides the option to parse to CSV, and then to output as either a
 'transposed' format, a long format where each input row as printed separately
 the long way, or standard CSV so you can roll your own.
+There is also an option to output each row to an individual file so that you can
+use an external diff program, e.g. vimdiff, to compare individual rows.
 
 
-Sample input:
+Sample input (sample.txt):
 
 +------+----------+-----------------+
 | date |   name   |     address     |
@@ -66,6 +68,35 @@ address  America
 -------  --------1
 
 
+### single-file ouput
+
+Sometimes you want to compare rows
+with an external diff program, and so
+it would be helpful to have each row in long format
+in a separate file.
+
+
+sample2.txt:
+
++------+----------+-----------------+
+| date |   name   |     address     |
++------+----------+-----------------+
+| 2014 |  Jud     | 205 main Street |
+| 2014 |  Judy    | 217 main Street |
+| 2023 |  Jud     | 222 1st street  |
++------+----------+-----------------+
+
+$ mkdir /tmp/out2
+$ untabulate.py --long-file /tmp/out2 sample2.txt
+
+INFO:root:wrote /tmp/out2/01
+INFO:root:wrote /tmp/out2/02
+INFO:root:wrote /tmp/out2/03
+
+$ vimdiff /tmp/out2/*
+
+Note that this is really only practical for a small number of files,
+e.g. no more than can fit comfortably onscreen in your multi-file diff viewer.
 
 """
 
@@ -165,9 +196,9 @@ def parse_args():
     parser.add_argument('-t', '--transpose', action='store_true', help='Transpose the output CSV')
     parser.add_argument('-p', '--pretty', action='store_true', help='pretty print the output')
     parser.add_argument('-l', '--long', action='store_true', help='long format. Also uses prety printing')
-    parser.add_argument('-L', '--long-files', help='write each row to a numbered output file in <folder>for diffing')
-    parser.add_argument('-f', '--format', help='tabulate format for output.' +
-                        'Default is %(default). options include grid, psql, markdown',
+    parser.add_argument('-L', '--long-files', help='write each row to a numbered output file in $FOLDER for diffing',
+                        metavar='FOLDER')
+    parser.add_argument('-f', '--format', help='tabulate format for output. Default is %(default)s. options include grid, psql, markdown',
                         default='simple')
     parser.add_argument('files', nargs='*', help='input file(s). Otherwise STDIN is used')
     return parser.parse_args()
