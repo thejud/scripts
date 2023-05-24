@@ -97,7 +97,7 @@ sample2.txt:
 +------+----------+-----------------+
 
 $ mkdir /tmp/out2
-$ untabulate.py --long-file /tmp/out2 sample2.txt
+$ untabulate.py --row-per-file /tmp/out2 sample2.txt
 
 INFO:root:wrote /tmp/out2/01
 INFO:root:wrote /tmp/out2/02
@@ -175,7 +175,7 @@ def write_long(data, print_format, outfile=sys.stdout):
         write_pretty(transposed[1:], print_format, header=False, outfile=outfile)
         print(file=outfile)
 
-def write_long_files(data, print_format, folder):
+def write_one_row_per_file(data, print_format, folder):
     headers = data[0]
     for i, row in enumerate(data[1:]):
         outfile = Path(folder)/str(i+1).zfill(2)
@@ -194,11 +194,15 @@ def run(opts):
         write_pretty(data, opts.format)
     elif opts.long:
         write_long(data, opts.format)
-    elif opts.long_files:
-        write_long_files(data, opts.format, opts.long_files)
+    elif opts.row_per_file:
+        write_one_row_per_file(data, opts.format, opts.row_per_file)
     else:
         write_csv(data)
 
+def existing_directory(path):
+    if not Path(path).is_dir():
+        raise argparse.ArgumentTypeError(f"{path} is not a valid directory")
+    return path
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse tabular data.')
@@ -206,8 +210,8 @@ def parse_args():
     parser.add_argument('-t', '--transpose', action='store_true', help='Transpose the output CSV')
     parser.add_argument('-p', '--pretty', action='store_true', help='pretty print the output')
     parser.add_argument('-l', '--long', action='store_true', help='long format. Also uses prety printing')
-    parser.add_argument('-L', '--long-files', help='write each row to a numbered output file in $FOLDER for diffing',
-                        metavar='FOLDER')
+    parser.add_argument('-r', '--row-per-file', type=existing_directory, metavar='FOLDER'
+                        help='write each row to a numbered output file in FOLDER (for diffing)'
     parser.add_argument('-f', '--format', help='tabulate format for output. Default is %(default)s. options include grid, psql, markdown',
                         default='simple')
     parser.add_argument('files', nargs='*', help='input file(s). Otherwise STDIN is used')
