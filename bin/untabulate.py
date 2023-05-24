@@ -6,13 +6,23 @@ output formats.
 
 spark dataframe.show(), psql and other tools sometimes
 output data in tabular format. It is useful for interactive debugging, but
-sometimes the dataframes get much to wide to view comfortable.
+sometimes the dataframes get much to wide to view comfortablebly.
 
-Untabulate provides the option to parse to CSV, and then to output as either a
+untabulate provides the option to parse to CSV, and then to output as either a
 'transposed' format, a long format where each input row as printed separately
 the long way, or standard CSV so you can roll your own.
 There is also an option to output each row to an individual file so that you can
 use an external diff program, e.g. vimdiff, to compare individual rows.
+
+WARNING:
+
+whitespace is stripped from the left and right sides of each field. Because each
+tabulated format handles whitespace padding and justification slightly
+differently, this tool just strips it away. Unfortunately it means that leading
+or trailing whitespace issues may not be captured properly.
+
+
+## EXAMPLES
 
 
 Sample input (sample.txt):
