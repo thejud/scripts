@@ -210,8 +210,8 @@ def parse_args():
     parser.add_argument('-t', '--transpose', action='store_true', help='Transpose the output CSV')
     parser.add_argument('-p', '--pretty', action='store_true', help='pretty print the output')
     parser.add_argument('-l', '--long', action='store_true', help='long format. Also uses prety printing')
-    parser.add_argument('-r', '--row-per-file', type=existing_directory, metavar='FOLDER'
-                        help='write each row to a numbered output file in FOLDER (for diffing)'
+    parser.add_argument('-r', '--row-per-file', type=existing_directory, metavar='FOLDER',
+                        help='write each row to a numbered output file in FOLDER (for diffing)')
     parser.add_argument('-f', '--format', help='tabulate format for output. Default is %(default)s. options include grid, psql, markdown',
                         default='simple')
     parser.add_argument('files', nargs='*', help='input file(s). Otherwise STDIN is used')
