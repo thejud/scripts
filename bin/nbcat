@@ -1,0 +1,3 @@
+# pretty printer for python notebooks
+
+jupyter nbconvert --stdout --to markdown "$1" | bat -l md
