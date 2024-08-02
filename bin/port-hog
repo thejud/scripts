@@ -13,6 +13,12 @@ while getopts ":hv" opt; do
   shift $((OPTIND -1))
 done
 
+if [[ $UID != 0 ]]; then
+  echo "not running as root. May not see anything." > /dev/stderr
+  echo "sudo $0 $1" > /dev/stderr 
+fi
+
+
 PORT="${1:?Port required: $usage}"
 lsof -nP -iTCP:$PORT | grep LISTEN
 found=$?

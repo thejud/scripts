@@ -3,15 +3,15 @@
 #
 # unixtime will parse the input, treating input with all digits as
 # a seconds (or milliseconds, determined by length) since the epoch value.
-# 
+#
 # non-epoch input will be parsed as a date string.
 #
 # WARNING: date strings without a timezone will be treated
-# as UTC. 
+# as UTC.
 #
 #
 # EXAMPLES:
-#   
+#
 #   # output the current time in epoch seconds
 #   unixtime
 #
@@ -30,8 +30,14 @@
 #   # read from stdin
 #   echo 1512238655 | unixtime -f
 #
-#   # read from file(s)
+#   # read and filter from file(s)
 #   unixtime -f f1 f2 f3
+#
+#   # Filter mode:
+#   #  detect long sequences of digits in the input
+#   #  and treat it either as a unix timestamp, or a java
+#   #  timestamp (milliseconds since the epoch)
+#   echo "foo 1512238655 bar" | unixtime -f
 #
 #   echo "foo 1512238655 bar" | unixtime -f
 #
@@ -39,13 +45,19 @@
 #   date | unixtime -f
 #
 #   unixtime '2017-01-01T12:23:14Z'
+#
+# Note that this uses ruby because it has one of the more robust
+# date parsing libraries as part of the standard library, without
+# installing additional package. Unfortunately, timezone management
+# is not included. F
+
 
 require 'date'
 require 'optparse'
 
 def parse(s, opts)
-  match = /(\d{9,17})/.match(s)
-  if !match 
+  match = /(\d{9,15})/.match(s)
+  if !match
     if opts[:filter]
       puts s
     else
@@ -55,7 +67,7 @@ def parse(s, opts)
   end
 
   timet = match[0]
-  if timet.size > 12
+  if timet.size >= 12 or opts.millis
     t = timet.to_i/1000.0  # milliseconds
   else
     t = timet.to_f
@@ -82,7 +94,7 @@ OptionParser.new do |o|
   o.on('--utc', '-u', 'UTC output') do
     opts[:utc] = true
   end
-  o.on('--millis', '-m', 'millisecond output') do
+  o.on('--millis', '-m', 'millisecond input/output') do
     opts[:resolution] = 1000
     opts[:fmt] = '%Q'
   end

@@ -1,0 +1,3 @@
+# trim horizontal (non-newline) from lines
+
+perl -pe's/\h+$//' "$@"

@@ -1,0 +1,2 @@
+# split on whitespace
+perl -pe's/\s+/\n/g'

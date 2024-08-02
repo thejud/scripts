@@ -1,0 +1,2 @@
+# pbpaste into /tmp/a
+pbpaste > /tmp/a

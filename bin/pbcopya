@@ -1,0 +1,2 @@
+# copy from /tmp/a into clipboard
+pbcopy "$*" < /tmp/a

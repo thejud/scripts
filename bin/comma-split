@@ -1,0 +1,4 @@
+# translate commas to newlines
+# also eats the surrounding spaces
+
+perl -pe's/\s*,\s*/\n/g' "$@"
