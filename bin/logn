@@ -13,7 +13,7 @@ seq 10 | logn
 seq 10 | logn --10
 seq 10 | logn --2
 
-seq 10 | logn -n 5
+seq 10 | logn -b 5
 
 
 echo 0 | logn  # ERROR
@@ -48,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description="A CLI tool to calculate logarithms.")
     parser.add_argument('--10', action='store_true', help='Calculate log base 10')
     parser.add_argument('--2', action='store_true', help='Calculate log base 2')
-    parser.add_argument('-n', type=float, help='Calculate log base n')
+    parser.add_argument('--base', '-b', type=float, help='Calculate log base n')
     parser.add_argument('files', nargs='*', help='input files. default is STDIN')
 
     args = parser.parse_args()
@@ -58,7 +58,7 @@ def main():
         base = 10
     elif args.__getattribute__('2'):
         base = 2
-    elif args.n is not None:
+    elif args.base is not None:
         base = args.n
 
     for line in fileinput.input(args.files):
