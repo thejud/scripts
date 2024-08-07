@@ -59,7 +59,7 @@ def main():
     elif args.__getattribute__('2'):
         base = 2
     elif args.base is not None:
-        base = args.n
+        base = args.base
 
     for line in fileinput.input(args.files):
         line = line.strip()
