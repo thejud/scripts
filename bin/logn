@@ -2,6 +2,10 @@
 """
 compute the log of a sequence of numbers
 
+This is particularly useful for pipelines to graph or
+compute stats of numbers for applications (like yougraph)
+that don't provide logarithm conversion.
+
 EXAMPLES:
 
 seq 10 | logn
