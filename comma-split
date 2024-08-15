@@ -1,0 +1,2 @@
+# split on commas + optional whitespace
+perl -pE's/\s*,\s*/\n/g'
