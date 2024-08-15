@@ -1,2 +1,5 @@
+# grep the persistent history
+# Use grep arguments like '-C 10' for context 
+
 set -x
 grep "$@" ~/.persistent_history
