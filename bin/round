@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+"""
+Round each number in the input
+
+USAGE: round [file1]...
+
+
+EXAMPLES:
+
+printf "1.4\n1.5\nfoo\n-1.4" | round
+1
+2
+-1
+"""
+
+import fileinput
+
+for line in fileinput.input():
+  try:
+    val = float(line.strip())
+    print(round(val))
+  except ValueError:
+    pass
