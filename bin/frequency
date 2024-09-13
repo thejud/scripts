@@ -1,0 +1,2 @@
+# frequency count
+sort | uniq -c | sort -nr
