@@ -75,7 +75,7 @@ address  217 main Street
 date     1492
 name     Columbus
 address  America
--------  --------1
+-------  --------
 
 
 ### single-file ouput
@@ -120,6 +120,7 @@ import logging
 import sys
 import tabulate
 
+
 def parse_table(input_lines):
     lines = list(input_lines)
 
@@ -147,9 +148,11 @@ def parse_table(input_lines):
 
     return col_names, data
 
+
 def write_csv(data):
     writer = csv.writer(sys.stdout)
     writer.writerows(data)
+
 
 def write_pretty(data, print_format, header=True, outfile=sys.stdout):
     print(tabulate.tabulate(data, headers="firstrow" if header else [],
@@ -158,14 +161,18 @@ def write_pretty(data, print_format, header=True, outfile=sys.stdout):
                             disable_numparse=True,
                             ), file=outfile)
 
+
+
 def add_row_numbers(rows, column_name='rownum'):
     yield [column_name, *rows[0]]
 
     for i, row in enumerate(rows[1:]):
         yield [i+1, *row]
 
+
 def transpose(data):
     return zip(*add_row_numbers(data, 'fieldname'))
+
 
 def write_long(data, print_format, outfile=sys.stdout):
     headers = data[0]
@@ -174,6 +181,7 @@ def write_long(data, print_format, outfile=sys.stdout):
         transposed = list(transpose([headers, row]))
         write_pretty(transposed[1:], print_format, header=False, outfile=outfile)
         print(file=outfile)
+
 
 def write_one_row_per_file(data, print_format, folder):
     headers = data[0]
@@ -199,10 +207,12 @@ def run(opts):
     else:
         write_csv(data)
 
+
 def existing_directory(path):
     if not Path(path).is_dir():
         raise argparse.ArgumentTypeError(f"{path} is not a valid directory")
     return path
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse tabular data.')

@@ -27,6 +27,7 @@ import sys
 import tabulate
 import argparse
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Parse fixed-width columns to JSON")
     parser.add_argument('input_file', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
@@ -34,6 +35,7 @@ def parse_args():
     parser.add_argument('-t', '--table', action='store_true',
                         help="output data in long table format instead of json")
     return parser.parse_args()
+
 
 def split_fixed(line, ranges, rstrip=True, lstrip=False):
     fields = []
