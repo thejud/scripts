@@ -42,9 +42,15 @@ date,name,address
 2014,Jud,217 main Street
 1492,Columbus,America
 
+### TSV output
+
+date	name	address
+2014	Jud	217 main Street
+1492	Columbus	America
+
 ### transposed output
 
-$ untabulate.py -t sample.txt
+$ untabulate.py -T sample.txt
 fieldname,1,2
 date,2014,1492
 name,Jud,Columbus
@@ -54,7 +60,7 @@ address,217 main Street,America
 ### transposed and pretty printed output
 
 
-$ untabulate.py -tp /tmp/sample.txt
+$ untabulate.py -Tp /tmp/sample.txt
 fieldname    1                2
 -----------  ---------------  --------
 date         2014             1492
@@ -154,6 +160,11 @@ def write_csv(data):
     writer.writerows(data)
 
 
+def write_tsv(data):
+    writer = csv.writer(sys.stdout, delimiter='\t')
+    writer.writerows(data)
+
+
 def write_pretty(data, print_format, header=True, outfile=sys.stdout):
     print(tabulate.tabulate(data, headers="firstrow" if header else [],
                             tablefmt=print_format,
@@ -204,6 +215,8 @@ def run(opts):
         write_long(data, opts.format)
     elif opts.row_per_file:
         write_one_row_per_file(data, opts.format, opts.row_per_file)
+    elif opts.tsv:
+        write_tsv(data)
     else:
         write_csv(data)
 
@@ -217,7 +230,8 @@ def existing_directory(path):
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse tabular data.')
     parser.add_argument('-d', '--debug', action='store_true', help='turn on debugging')
-    parser.add_argument('-t', '--transpose', action='store_true', help='Transpose the output CSV')
+    parser.add_argument('-T', '--transpose', action='store_true', help='Transpose the output CSV')
+    parser.add_argument('-t', '--tsv', action='store_true', help='Write TSV output')
     parser.add_argument('-p', '--pretty', action='store_true', help='pretty print the output')
     parser.add_argument('-l', '--long', action='store_true', help='long format. Also uses prety printing')
     parser.add_argument('-r', '--row-per-file', type=existing_directory, metavar='FOLDER',
