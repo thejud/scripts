@@ -1,0 +1,3 @@
+#!vd -p
+{"sheet": "", "col": "", "row": "", "longname": "open-guide-index", "input": "", "keystrokes": "F3", "comment": "open VisiData guides table of contents", "replayable": true}
+{"sheet": "", "col": "", "row": 21, "longname": "open-row", "input": "", "keystrokes": "Enter", "comment": "open current row with sheet-specific dive", "replayable": true}

@@ -1,0 +1,105 @@
+TableSheet.bindkey('0', 'go-leftmost')   # alias '0' to go to first column, like vim
+TableSheet.bindkey('F2', 'open-guide-index')  # make guide development easier
+TableSheet.bindkey('gF1', 'help-commands-all')
+TableSheet.bindkey('F4', 'rename-sheet')
+
+TableSheet.bindkey('zF3', 'view-pivot')
+
+#TableSheet.bindkey('gr', 'go-row-number') # zero-indexed
+#TableSheet.bindkey('gc', 'go-col-number') # zero-indexed
+
+import plugins.jud
+
+##### -------------------------------------------------- 
+# ONLY FOR NOAH's RUG 
+##### -------------------------------------------------- 
+
+#import gender_guesser.detector as gender
+#gender_detector=gender.Detector()
+
+PHONE_MAPPINGS = {
+  '2': "abc",
+  '3': "def",
+  '4': "ghi",
+  '5': "jkl",
+  '6': "mno",
+  '7': "pqrs",
+  '8': "tuv",
+  '9': "wxzy",
+}
+LETTER2DIGIT = dict()
+
+for digit, letters in PHONE_MAPPINGS.items():
+    for letter in letters:
+       LETTER2DIGIT[letter] = digit 
+
+
+def phone_digits(text): 
+    out = [ LETTER2DIGIT.get(letter, "") for letter in text ]
+    return "".join(out)
+      
+##### -------------------------------------------------- 
+
+##############################3
+# FUNCTIONS
+##############################3
+
+from datetime import datetime
+import time
+
+
+def e2dt(epoch):
+    return datetime.fromtimestamp(epoch)
+
+def gmtime(epoch):
+    return time.strftime("%F %T %Z", time.gmtime(epoch));
+
+#def median(values):
+#    L = sorted(values)
+#    return L[len(L)//2]
+
+
+def try_or(fun):
+    try:
+        return fun()
+    except Exception as e:
+        print(e)
+        return None
+
+def date_or(epoch):
+    try: 
+        return datetime.fromtimestamp(epoch)
+    except Exception:
+        return None
+      
+
+def e2date(timestamp, force_seconds=False, force_milliseconds=False):
+    """
+    Converts an integer or string containing an integer into a datetime object.
+    
+    Heuristically determines whether the input is in seconds or milliseconds since the epoch
+    based on the number of digits, unless a flag is set to force one or the other.
+
+    :param timestamp: Integer or string representing the timestamp.
+    :param force_seconds: If True, forces interpretation of the timestamp as seconds.
+    :param force_milliseconds: If True, forces interpretation of the timestamp as milliseconds.
+    :return: A datetime object.
+    """
+    # Convert to int if the input is a string
+    if isinstance(timestamp, str):
+        timestamp = int(timestamp)
+    
+    if force_seconds:
+        # Force interpretation as seconds since epoch
+        return datetime.utcfromtimestamp(timestamp)
+    elif force_milliseconds:
+        # Force interpretation as milliseconds since epoch
+        return datetime.utcfromtimestamp(timestamp / 1000)
+    else:
+        # Heuristic: use milliseconds if the number has more than 10 digits
+        if len(str(timestamp)) > 10:
+            return datetime.utcfromtimestamp(timestamp / 1000)
+        else:
+            return datetime.utcfromtimestamp(timestamp)
+
+    
