@@ -1,0 +1,10 @@
+# open a file in vim using fzf
+# usage: vz <dir>
+
+set -exuf -o pipefail
+
+IFS=$'\n' wanted=($(fd . --type f "${1:-.}" | fzf -m --preview 'bat --style=numbers --color=always --line-range :200 {}'))
+
+if [ -n "$wanted" ]; then
+  $EDITOR "${wanted[@]}"
+fi
