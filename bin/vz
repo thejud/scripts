@@ -3,7 +3,7 @@
 
 set -exuf -o pipefail
 
-IFS=$'\n' wanted=($(fd . --type f "${1:-.}" | fzf -m --preview 'bat --style=numbers --color=always --line-range :200 {}'))
+IFS=$'\n' wanted=($(fd . --type f "${1:-.}" | fzf -m --preview 'bat --style=numbers --color=always --line-range :200 {}' --prompt 'files:'))
 
 if [ -n "$wanted" ]; then
   $EDITOR "${wanted[@]}"
