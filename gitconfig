@@ -130,6 +130,7 @@
 
 [push]
   default = simple
+  autoSetupRemote = true
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
