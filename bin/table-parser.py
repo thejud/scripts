@@ -19,27 +19,34 @@ See also: untabulate.py
 
 """
 
-import fileinput
+import argparse
 import json
 import logging
 import re
 import sys
-import tabulate
-import argparse
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Parse fixed-width columns to JSON")
-    parser.add_argument('input_file', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
-                        help="Input file containing fixed-width formatted data. Defaults to STDIN if not provided.")
-    parser.add_argument('-t', '--table', action='store_true',
-                        help="output data in long table format instead of json")
+    parser.add_argument(
+        "input_file",
+        nargs="?",
+        type=argparse.FileType("r"),
+        default=sys.stdin,
+        help="Input file containing fixed-width formatted data. Defaults to STDIN if not provided.",
+    )
+    parser.add_argument(
+        "-t",
+        "--table",
+        action="store_true",
+        help="output data in long table format instead of json",
+    )
     return parser.parse_args()
 
 
 def split_fixed(line, ranges, rstrip=True, lstrip=False):
     fields = []
-    for (start, end) in ranges:
+    for start, end in ranges:
         field = line[start:end]
         if rstrip:
             field = field.rstrip()
@@ -50,16 +57,16 @@ def split_fixed(line, ranges, rstrip=True, lstrip=False):
 
 
 def main(opts):
-    lines = [line.strip() for line in opts.input_file if not line.startswith('+-')]
+    lines = [line.strip() for line in opts.input_file if not line.startswith("+-")]
 
     header = lines[0]
-    column_names = [name.strip() for name in header.split('|')]
+    column_names = [name.strip() for name in header.split("|")]
 
     # remove the empty first column from the initial '|'
     column_names = column_names[1:]
 
     # Find all positions of the '|' character
-    positions = [match.start() for match in re.finditer(r'\|', header)]
+    positions = [match.start() for match in re.finditer(r"\|", header)]
 
     # Create the ranges by pairing the positions
     logging.debug("headers: %s", column_names)
@@ -71,15 +78,15 @@ def main(opts):
     kv = [dict(zip(column_names, fields)) for fields in parsed]
 
     if opts.table:
-        logger.error("tables not supported yet. Use mlr --n2x")
+        logging.error("tables not supported yet. Use mlr --n2x")
         sys.exit(1)
 
     ## JSON output
     for row in kv:
         print(json.dumps(row))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     opts = parse_args()
     main(opts)
-
