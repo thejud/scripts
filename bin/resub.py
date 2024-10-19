@@ -100,28 +100,69 @@ import sys
 import argparse
 import logging
 import tempfile
-from pathlib import Path
 
 
-LOG_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+LOG_FORMAT = "%(asctime)s %(levelname)s - %(message)s"
+
 
 def parse_args(args=None):
     if args is None:
         args = sys.argv[1:]  # Default to command-line arguments if not provided
-    parser = argparse.ArgumentParser(description="Bulk replace using regular expressions")
+    parser = argparse.ArgumentParser(
+        description="Bulk replace using regular expressions"
+    )
     parser.add_argument("pattern", help="Regex pattern to search for")
     parser.add_argument("replacement", help="Replacement string")
-    parser.add_argument("files", nargs='*', default=['.'], help="Files or directories to process")
-    parser.add_argument("-c", "--confirm", action="store_true", help="Confirm every replacement")
-    parser.add_argument("-d", "--debug", action="count", default=0, help="Increase verbosity of debugging messages")
-    parser.add_argument("-n", "--dry-run", action="store_true", help="Dry run. Don't actually modify files.")
-    parser.add_argument("-f", "--from-file", help="Read list of files to process from a file or stdin")
-    parser.add_argument("-i", "--ignore-case", action="store_true", help="Ignore case in pattern matching")
-    parser.add_argument("-e", "--ignore-errors", action="store_true", help="Ignore errors when opening files")
-    parser.add_argument("-r", "--recursive", action="store_true", help="Process directories recursively")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Increase verbosity of output")
-    parser.add_argument("-m", "--match", help="Only perform substitution if lines also match this pattern")
-    parser.add_argument("-V", "--nomatch", help="Only perform substitution if lines do not match this pattern")
+    parser.add_argument(
+        "files", nargs="*", default=["."], help="Files or directories to process"
+    )
+    parser.add_argument(
+        "-c", "--confirm", action="store_true", help="Confirm every replacement"
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="count",
+        default=0,
+        help="Increase verbosity of debugging messages",
+    )
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_true",
+        help="Dry run. Don't actually modify files.",
+    )
+    parser.add_argument(
+        "-f", "--from-file", help="Read list of files to process from a file or stdin"
+    )
+    parser.add_argument(
+        "-i",
+        "--ignore-case",
+        action="store_true",
+        help="Ignore case in pattern matching",
+    )
+    parser.add_argument(
+        "-e",
+        "--ignore-errors",
+        action="store_true",
+        help="Ignore errors when opening files",
+    )
+    parser.add_argument(
+        "-r", "--recursive", action="store_true", help="Process directories recursively"
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Increase verbosity of output"
+    )
+    parser.add_argument(
+        "-m",
+        "--match",
+        help="Only perform substitution if lines also match this pattern",
+    )
+    parser.add_argument(
+        "-V",
+        "--nomatch",
+        help="Only perform substitution if lines do not match this pattern",
+    )
     args = parser.parse_args(args)
 
     return args
@@ -135,10 +176,11 @@ def replace(file, pattern, replacement, opts):
     else:
         search_pattern = re.compile(pattern)
 
-
     try:
-        with open(file, 'r') as infile, tempfile.NamedTemporaryFile('w', delete=False) as outfile:
-            logging.debug('checking file: %s', file)
+        with open(file, "r") as infile, tempfile.NamedTemporaryFile(
+            "w", delete=False
+        ) as outfile:
+            logging.debug("checking file: %s", file)
 
             modified = False
             for line in infile:
@@ -166,10 +208,10 @@ def replace(file, pattern, replacement, opts):
                 if opts.confirm:
                     print(f"Replace in line: {line.strip()}? (y/n/all) ", end="")
                     response = input().lower()
-                    if response == 'n':
+                    if response == "n":
                         outfile.write(line)
                         continue
-                    elif response == 'all':
+                    elif response == "all":
                         opts.confirm = False
 
                 # Perform the substitution
@@ -191,8 +233,8 @@ def replace(file, pattern, replacement, opts):
                 return True
 
         # Overwrite the original file with the modified content
-        with open(file, 'w') as original_file:
-            with open(outfile.name, 'r') as temp_file:
+        with open(file, "w") as original_file:
+            with open(outfile.name, "r") as temp_file:
                 original_file.write(temp_file.read())
 
         os.remove(outfile.name)
@@ -212,7 +254,7 @@ def process_files(files, opts, pattern, replacement):
     file_list = []
 
     if opts.from_file:
-        if opts.from_file == '-':
+        if opts.from_file == "-":
             file_list = [line.strip() for line in sys.stdin]
         else:
             with open(opts.from_file) as f:
@@ -226,15 +268,22 @@ def process_files(files, opts, pattern, replacement):
                         for name in filenames:
                             file_list.append(os.path.join(root, name))
                 else:
-                    file_list.extend([os.path.join(file, f) for f in os.listdir(file) if os.path.isfile(os.path.join(file, f))])
+                    file_list.extend(
+                        [
+                            os.path.join(file, f)
+                            for f in os.listdir(file)
+                            if os.path.isfile(os.path.join(file, f))
+                        ]
+                    )
             else:
                 file_list.append(file)
 
     for file in file_list:
-        if re.search(r'\.(swo|swp)$', file):
+        if re.search(r"\.(swo|swp)$", file):
             logging.debug(f"Skipping swap file: {file}")
             continue
         replace(file, pattern, replacement, opts)
+
 
 def main():
     logging.basicConfig(level=logging.WARNING, format=LOG_FORMAT)
@@ -253,6 +302,7 @@ def main():
         logging.warning("Dry run mode - no changes will be made.")
 
     process_files(opts.files, opts, opts.pattern, opts.replacement)
+
 
 if __name__ == "__main__":
     main()
