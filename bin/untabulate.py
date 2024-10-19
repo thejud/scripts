@@ -116,7 +116,6 @@ e.g. no more than can fit comfortably onscreen in your multi-file diff viewer.
 
 """
 
-from collections import OrderedDict
 from pathlib import Path
 
 import argparse
@@ -131,10 +130,10 @@ def parse_table(input_lines):
     lines = list(input_lines)
 
     # Determine column widths
-    col_widths = [len(x) for x in lines[0].split('+')[1:-1]]
+    col_widths = [len(x) for x in lines[0].split("+")[1:-1]]
 
     # Extract column names
-    col_names = lines[1].split('|')[1:-1]
+    col_names = lines[1].split("|")[1:-1]
     col_names = [x.strip() for x in col_names]
     logging.debug("names: %s", col_names)
     logging.debug("withs: %s", col_widths)
@@ -142,13 +141,13 @@ def parse_table(input_lines):
     # Parse the data
     data = [col_names]
     for line in lines[3:]:
-        if line.startswith('+'):
+        if line.startswith("+"):
             continue
 
         start = 1
         row = []
-        for width, col_name in zip(col_widths, col_names):
-            row.append(line[start:start+width].strip())
+        for width, _ in zip(col_widths, col_names):
+            row.append(line[start : start + width].strip())
             start += width + 1
         data.append(row)
 
@@ -161,28 +160,32 @@ def write_csv(data):
 
 
 def write_tsv(data):
-    writer = csv.writer(sys.stdout, delimiter='\t')
+    writer = csv.writer(sys.stdout, delimiter="\t")
     writer.writerows(data)
 
 
 def write_pretty(data, print_format, header=True, outfile=sys.stdout):
-    print(tabulate.tabulate(data, headers="firstrow" if header else [],
-                            tablefmt=print_format,
-                            numalign=None,
-                            disable_numparse=True,
-                            ), file=outfile)
+    print(
+        tabulate.tabulate(
+            data,
+            headers="firstrow" if header else [],
+            tablefmt=print_format,
+            numalign=None,
+            disable_numparse=True,
+        ),
+        file=outfile,
+    )
 
 
-
-def add_row_numbers(rows, column_name='rownum'):
+def add_row_numbers(rows, column_name="rownum"):
     yield [column_name, *rows[0]]
 
     for i, row in enumerate(rows[1:]):
-        yield [i+1, *row]
+        yield [i + 1, *row]
 
 
 def transpose(data):
-    return zip(*add_row_numbers(data, 'fieldname'))
+    return zip(*add_row_numbers(data, "fieldname"))
 
 
 def write_long(data, print_format, outfile=sys.stdout):
@@ -197,9 +200,9 @@ def write_long(data, print_format, outfile=sys.stdout):
 def write_one_row_per_file(data, print_format, folder):
     headers = data[0]
     for i, row in enumerate(data[1:]):
-        outfile = Path(folder)/str(i+1).zfill(2)
+        outfile = Path(folder) / str(i + 1).zfill(2)
         transposed = list(transpose([headers, row]))
-        with open(outfile, 'w') as handle:
+        with open(outfile, "w") as handle:
             write_pretty(transposed[1:], print_format, header=False, outfile=handle)
             logging.info("wrote %s", outfile)
 
@@ -228,18 +231,39 @@ def existing_directory(path):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Parse tabular data.')
-    parser.add_argument('-d', '--debug', action='store_true', help='turn on debugging')
-    parser.add_argument('-T', '--transpose', action='store_true', help='Transpose the output CSV')
-    parser.add_argument('-t', '--tsv', action='store_true', help='Write TSV output')
-    parser.add_argument('-p', '--pretty', action='store_true', help='pretty print the output')
-    parser.add_argument('-l', '--long', action='store_true', help='long format. Also uses prety printing')
-    parser.add_argument('-r', '--row-per-file', type=existing_directory, metavar='FOLDER',
-                        help='write each row to a numbered output file in FOLDER (for diffing)')
-    parser.add_argument('-f', '--format', help='tabulate format for output. Default is %(default)s. options include grid, psql, markdown',
-                        default='simple')
-    parser.add_argument('files', nargs='*', help='input file(s). Otherwise STDIN is used')
+    parser = argparse.ArgumentParser(description="Parse tabular data.")
+    parser.add_argument("-d", "--debug", action="store_true", help="turn on debugging")
+    parser.add_argument(
+        "-T", "--transpose", action="store_true", help="Transpose the output CSV"
+    )
+    parser.add_argument("-t", "--tsv", action="store_true", help="Write TSV output")
+    parser.add_argument(
+        "-p", "--pretty", action="store_true", help="pretty print the output"
+    )
+    parser.add_argument(
+        "-l",
+        "--long",
+        action="store_true",
+        help="long format. Also uses prety printing",
+    )
+    parser.add_argument(
+        "-r",
+        "--row-per-file",
+        type=existing_directory,
+        metavar="FOLDER",
+        help="write each row to a numbered output file in FOLDER (for diffing)",
+    )
+    parser.add_argument(
+        "-f",
+        "--format",
+        help="tabulate format for output. Default is %(default)s. options include grid, psql, markdown",
+        default="simple",
+    )
+    parser.add_argument(
+        "files", nargs="*", help="input file(s). Otherwise STDIN is used"
+    )
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     opts = parse_args()

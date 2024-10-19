@@ -33,7 +33,7 @@ if($action =~ /\+/) {
     exec($cmd);
 } elsif($action =~ /-/) {
     $path = $cwd unless length($path);
-    cdbmrc_remove($path);          
+    cdbmrc_remove($path);
 } else {
     print pick(grep { /$ARGV[0]/ } cdbmrc_get()), "\n";
 }
