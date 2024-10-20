@@ -116,6 +116,7 @@ e.g. no more than can fit comfortably onscreen in your multi-file diff viewer.
 
 """
 
+from collections.abc import Iterable, Generator
 from pathlib import Path
 
 import argparse
@@ -125,8 +126,11 @@ import logging
 import sys
 import tabulate
 
+type Row = list[str]
+type Rows = list[Row]
 
-def parse_table(input_lines):
+
+def parse_table(input_lines: Iterable[str]) -> tuple[Row, Rows]:
     lines = list(input_lines)
 
     # Determine column widths
@@ -139,13 +143,13 @@ def parse_table(input_lines):
     logging.debug("withs: %s", col_widths)
 
     # Parse the data
-    data = [col_names]
+    data: Rows = [col_names]
     for line in lines[3:]:
         if line.startswith("+"):
             continue
 
         start = 1
-        row = []
+        row: Row = []
         for width, _ in zip(col_widths, col_names):
             row.append(line[start : start + width].strip())
             start += width + 1
@@ -154,17 +158,16 @@ def parse_table(input_lines):
     return col_names, data
 
 
-def write_csv(data):
+def write_csv(data: Rows) -> None:
     writer = csv.writer(sys.stdout)
     writer.writerows(data)
 
-
-def write_tsv(data):
+def write_tsv(data: Rows) -> None:
     writer = csv.writer(sys.stdout, delimiter="\t")
     writer.writerows(data)
 
 
-def write_pretty(data, print_format, header=True, outfile=sys.stdout):
+def write_pretty(data: Rows, print_format, header=True, outfile=sys.stdout) -> None:
     print(
         tabulate.tabulate(
             data,
@@ -177,18 +180,22 @@ def write_pretty(data, print_format, header=True, outfile=sys.stdout):
     )
 
 
-def add_row_numbers(rows, column_name="rownum"):
+def add_row_numbers(rows: Rows, column_name="rownum") -> Generator[Row]:
     yield [column_name, *rows[0]]
 
     for i, row in enumerate(rows[1:]):
-        yield [i + 1, *row]
+        yield [str(i + 1), *row]
 
 
-def transpose(data):
-    return zip(*add_row_numbers(data, "fieldname"))
+def transpose(data: Rows) -> Rows:
+    # zip(*rows) unpacks rows into a list of rows,
+    # then zips the columns from a set of rows together
+    # e.g. [('name', 'age'), ('joe', '31'), ('jane', '30')]
+    #  becomes [('name', 'joe, 'jane'), ('age', '31', '30')]
+    return [list(row) for row in zip(*add_row_numbers(data, "fieldname"))]
 
 
-def write_long(data, print_format, outfile=sys.stdout):
+def write_long(data: Rows, print_format, outfile=sys.stdout) -> None:
     headers = data[0]
 
     for row in data[1:]:
@@ -197,7 +204,7 @@ def write_long(data, print_format, outfile=sys.stdout):
         print(file=outfile)
 
 
-def write_one_row_per_file(data, print_format, folder):
+def write_one_row_per_file(data: Rows, print_format, folder) -> None:
     headers = data[0]
     for i, row in enumerate(data[1:]):
         outfile = Path(folder) / str(i + 1).zfill(2)
@@ -207,11 +214,12 @@ def write_one_row_per_file(data, print_format, folder):
             logging.info("wrote %s", outfile)
 
 
-def run(opts):
+def run(opts) -> None:
     logging.debug("starting")
-    col_names, data = parse_table(fileinput.input(opts.files))
+    _, data = parse_table(fileinput.input(opts.files))
     if opts.transpose:
         data = transpose(data)
+
     if opts.pretty:
         write_pretty(data, opts.format)
     elif opts.long:
@@ -224,13 +232,13 @@ def run(opts):
         write_csv(data)
 
 
-def existing_directory(path):
+def existing_directory(path) -> Path:
     if not Path(path).is_dir():
         raise argparse.ArgumentTypeError(f"{path} is not a valid directory")
     return path
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Parse tabular data.")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debugging")
     parser.add_argument(
