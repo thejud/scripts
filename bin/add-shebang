@@ -17,5 +17,5 @@ if __name__ == "__main__":
 filename = sys.argv[1]
 command = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else 'python'
 data = open(filename).read()
-open(filename, 'w').write(f"#!/usr/bin/env {command}\n" + data)
+open(filename, 'w').write(f"#!/usr/bin/env {command}\n\n" + data)
 

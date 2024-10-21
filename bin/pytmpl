@@ -12,7 +12,7 @@ import subprocess
 import sys
 
 DATA= """\
-#!/usr/bin/env python
+#!/usr/bin/env python3
 \"\"\"
 NAME:
 
@@ -20,10 +20,6 @@ NAME:
 
 DESCRIPTION:
 
-
-AUTHOR:
-
-  $author <$email>
 
 EXAMPLES:
 
@@ -39,26 +35,29 @@ import json
 import logging
 import sys
 
-TIMESTAMP_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+LOG_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+
 
 def parse_args(args=None):
     desc=""
     p = argparse.ArgumentParser(description=desc)
     #p.add_argument('', help="default: %(default)s", default='')
-  
+
     # accept arguments as a param, so we
     # can import and run this module with a commandline-like
     # syntax.
-    if args is None: 
+    if args is None:
         args = sys.argv[1:]
     return p.parse_args(args)
 
+
 def run(opts):
-    logging.debug("starting")
+    logging.debug("starting %s", sys.argv[0])
+
 
 if __name__ == '__main__':
     opts = parse_args(sys.argv[1:])
-    logging.basicConfig(level=logging.DEBUG,format=TIMESTAMP_FORMAT)
+    logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
     run(opts)
 """
 
