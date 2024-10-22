@@ -113,7 +113,7 @@
 
 
     ###  reviews, sumit-style
-    
+
     # Quickly back up and put changes on the branch as local changees
     uncommit = reset --soft HEAD~1
 

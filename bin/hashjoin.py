@@ -28,7 +28,7 @@ However, given a small lookup table hashjoin allows for
 joining of unsorted lookup and target table(s).
 
 hashjoin.py uses the first field of the lookup as the key,
-and then 
+and then
 
 AUTHOR:
 
@@ -37,7 +37,7 @@ AUTHOR:
 EXAMPLES:
 
     # common usage:
-    hashjoin 
+    hashjoin
 
 """
 
@@ -45,40 +45,46 @@ from __future__ import print_function
 
 import argparse
 import fileinput
-import json
 import logging
 import re
 import sys
 
-TIMESTAMP_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+TIMESTAMP_FORMAT = "%(asctime)s %(levelname)s - %(message)s"
+
 
 def parse_args(args=None):
-    desc=""
+    desc = ""
     p = argparse.ArgumentParser(description=desc)
-    #p.add_argument('', help="default: %(default)s", default='')
-    p.add_argument('-d', '--delimiter', 
-            help="regex delimiter for lookup table",
-            default='\s+')
-    p.add_argument('-D', '--debug', action='store_true',
-            help='enable debugging')
-    p.add_argument('-o', '--only', action='store_true', 
-        help="print only lines with matches")
-    p.add_argument('-O', '--output-delimiter', 
-                   help="output delimiter. default = space",
-                   default=" ")
-    p.add_argument('-T', '--tab-output', action='store_true',
-                   help="use tab as the output delimiter")
-    p.add_argument('lookup', help='whitespace delimited lookup')
-    p.add_argument('targets', nargs='*', 
-            help='targets for lookup')
+    # p.add_argument('', help="default: %(default)s", default='')
+    p.add_argument(
+        "-d", "--delimiter", help="regex delimiter for lookup table", default="\\s+"
+    )
+    p.add_argument("-D", "--debug", action="store_true", help="enable debugging")
+    p.add_argument(
+        "-o", "--only", action="store_true", help="print only lines with matches"
+    )
+    p.add_argument(
+        "-O",
+        "--output-delimiter",
+        help="output delimiter. default = space",
+        default=" ",
+    )
+    p.add_argument(
+        "-T",
+        "--tab-output",
+        action="store_true",
+        help="use tab as the output delimiter",
+    )
+    p.add_argument("lookup", help="whitespace delimited lookup")
+    p.add_argument("targets", nargs="*", help="targets for lookup")
 
-  
     # accept arguments as a param, so we
     # can import and run this module with a commandline-like
     # syntax.
-    if args is None: 
+    if args is None:
         args = sys.argv[1:]
     return p.parse_args(args)
+
 
 def run(opts):
     logging.debug("starting")
@@ -101,13 +107,14 @@ def run(opts):
             if pattern in line:
                 line = line + opts.output_delimiter + extra
                 matched = True
-                logging.debug('matched %s', pattern)
+                logging.debug("matched %s", pattern)
                 break
         if matched or not opts.only:
             print(line)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     opts = parse_args(sys.argv[1:])
     debug_level = logging.DEBUG if opts.debug else logging.INFO
-    logging.basicConfig(level=debug_level ,format=TIMESTAMP_FORMAT)
+    logging.basicConfig(level=debug_level, format=TIMESTAMP_FORMAT)
     run(opts)
