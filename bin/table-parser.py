@@ -26,7 +26,7 @@ import re
 import sys
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Parse fixed-width columns to JSON")
     parser.add_argument(
         "input_file",
@@ -44,7 +44,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def split_fixed(line, ranges, rstrip=True, lstrip=False):
+def split_fixed(line, ranges, rstrip=True, lstrip=False) -> list[str]:
     fields = []
     for start, end in ranges:
         field = line[start:end]
@@ -56,7 +56,7 @@ def split_fixed(line, ranges, rstrip=True, lstrip=False):
     return fields
 
 
-def main(opts):
+def main(opts) -> None:
     lines = [line.strip() for line in opts.input_file if not line.startswith("+-")]
 
     header = lines[0]

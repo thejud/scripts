@@ -162,6 +162,7 @@ def write_csv(data: Rows) -> None:
     writer = csv.writer(sys.stdout)
     writer.writerows(data)
 
+
 def write_tsv(data: Rows) -> None:
     writer = csv.writer(sys.stdout, delimiter="\t")
     writer.writerows(data)
