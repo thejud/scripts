@@ -1,2 +1,2 @@
 cd $OBSIDIAN
-vi .
+nvim
