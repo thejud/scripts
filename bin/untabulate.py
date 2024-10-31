@@ -126,8 +126,8 @@ import logging
 import sys
 import tabulate
 
-type Row = list[str]
-type Rows = list[Row]
+Row = list[str]
+Rows = list[Row]
 
 
 def parse_table(input_lines: Iterable[str]) -> tuple[Row, Rows]:
