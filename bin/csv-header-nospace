@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+"""
+collapse spaces in the first line of a file, like a CSV header.
+
+Trivial replacement tool
+
+Examples:
+
+    # inplace fix of the file
+    csv-header-nospace -i test.csv
+
+    # do it via stdout
+    csv-header-nospace test.csv > out.csv
+
+    # replace spaces with '_'
+    csv-header-nospace -s '_' -i test.csv
+
+    # generate the test.csv file
+    cat > test.csv <<<EOF
+    Event Code,Street Address,name
+    open,1 Main,Bob
+    close,2 1st,J M D
+    open,2 main,Trudy
+    EOF
+
+    csvlook test.csv
+    | Event Code | Street Address | name  |
+    | ---------- | -------------- | ----- |
+    | open       | 1 Main         | Bob   |
+    | close      | 2 1st          | J M D |
+    | open       | 2 main         | Trudy |
+
+"""
+
+import argparse
+import fileinput
+import re
+
+def main():
+    parser = argparse.ArgumentParser(description='Replace spaces in the first line of a file.')
+    parser.add_argument('filename', help='The file to process.')
+    parser.add_argument('-i', '--inplace', action='store_true',
+                        help='Modify the file in place.')
+    parser.add_argument('-s', '--separator', default='',
+                        help='String to replace spaces with (default empty string).')
+    args = parser.parse_args()
+
+    line_num = 0
+
+    with fileinput.input(files=[args.filename], inplace=args.inplace) as f:
+        for line in f:
+            line_num += 1
+            if line_num == 1:
+                # Replace sequences of one or more spaces with the separator
+                modified_line = re.sub(' +', args.separator, line)
+                print(modified_line, end='')
+            else:
+                print(line, end='')
+
+if __name__ == '__main__':
+    main()

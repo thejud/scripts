@@ -1,0 +1,21 @@
+# git checkout with a list of recent branches using
+# Also provides a preview
+#
+# Experimenting with using 'git-delta' if available
+
+pretty_diff=""
+#if command -v delta  &> /dev/null ; then
+#  pretty_diff="|delta --dark --file-style=Aqua"
+#fi
+
+# pipefail to ensure that if we exit without a match,
+# we don't do the git checkout.
+# Even without this, we'd get a 
+
+set -x -o pipefail
+
+git branch --sort=-committerdate \
+  | fzf -q "${1:-}" -1 \
+      --header "Checkout Recent Branch" \
+      --preview "git diff --color=always {1} $pretty_diff" --pointer="" \
+  | xargs git checkout
