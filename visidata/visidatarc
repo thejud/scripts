@@ -102,4 +102,31 @@ def e2date(timestamp, force_seconds=False, force_milliseconds=False):
         else:
             return datetime.utcfromtimestamp(timestamp)
 
-    
+
+#-------------------------------------------------- 
+from visidata.features.window import WindowColumn
+
+def lag(col):
+    return col[0] if len(col) > 1 else None
+
+class LagColumn(WindowColumn):
+    def getValue(self, row):
+        window = self.windowrows.get(id(row), None)
+        return lag(window)
+
+@Sheet.api
+def addcol_lag(sheet, curcol):
+    before, after = 1, 0
+    newcol = LagColumn(
+        curcol.name+"_lag",
+        sourcecol=curcol,
+        before=before,
+        after=after
+    )
+    sheet.addColumnAtCursor(newcol)
+
+Sheet.addCommand('', 'addcol-lag', 'addcol_lag(cursorCol)', 'add column where each row contains the value from the previous row of the current column')
+
+#----------
+import numpy as np
+vd.aggregator('std', np.std, type=float)
