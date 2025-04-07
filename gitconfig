@@ -2,9 +2,11 @@
   path = .gitconfig.local
 [core]
   editor = vim
-  excludesfile = ~/.gitignore
+	excludesfile = /Users/jdagnall/.gitignore
 	autocrlf = input
 [alias]
+    # see also: https://www.durdn.com/blog/2012/11/22/must-have-git-aliases-advanced-examples/
+    #
     st = status -s
 
     cl = clone
@@ -20,23 +22,44 @@
     ai = add --interactive
 
     co = checkout
+    sw = switch
+
+    # get name of current branch
     br = branch
     brn = branch --show-current
+    brr = branch --show-current
     brname = branch --show-current
+
     #"!git branch -ra | grep -v done"
     bra = branch -ra
 
-    #list commands
+    # list commands
+    # author
     la = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s"'
     laa = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] %s >> %C(green)%d%C(reset)"'
+
+    lac = log --pretty=format:'"%h [%C(yellow)%cn%C(reset)] <%C(red)%an%C(reset)> %s"'
+
+    lc  = "!f() { git ll "$1"^.."$1"; }; f"
+
+
     le = log --oneline --decorate
     ll = log --pretty='format:"%C(yellow)%h%C(brightred)%d %Creset%s%Cgreen [%cn] %cd"' --decorate --numstat
-    lf = log --name-status --pretty=short --graph
-    ls1 = log --pretty=format:'"%C(yellow)%h%C(brightred)%d %Creset%s%Cgreen [%cn]"' --decorate
-    lds = log --pretty=format:'"%C(yellow)%h %C(green)%ad%C(brightred)%d %Creset%s%Cgreen [%cn]"' --decorate --date=short --graph
-    ls = log --pretty=format:'"%C(green)%h %C(yellow)[%ad]%C(brightred)%d %Creset%s%C(cyan) [%cn]"' --decorate --date=relative
-    lc  = "!f() { git ll "$1"^.."$1"; }; f"
     lnc = log --pretty=format:'"%h %s [%cn]"'
+    ls = log --pretty=format:'"%C(green)%h %C(yellow)[%ad]%C(brightred)%d %Creset%s%C(cyan) [%cn]"' --decorate --date=relative
+    ls1 = log --pretty=format:'"%C(yellow)%h%C(brightred)%d %Creset%s%Cgreen [%cn]"' --decorate
+
+
+    # show files + diffs
+    filelog = log -u
+    fl = filelog
+    fn = diff --name-only
+    files = show --name-status
+
+
+    # graph views
+    lds = log --pretty=format:'"%C(yellow)%h %C(green)%ad%C(brightred)%d %Creset%s%Cgreen [%cn]"' --decorate --date=short --graph
+    lf = log --name-status --pretty=short --graph
 
     # tree view commands, for null merge detection and other goodness
     ltree1 = log --graph --pretty='"format:%h parents=(%p) tree=%t %d %s"'
@@ -64,8 +87,12 @@
     d = diff --word-diff
     dc = diff --cached
 
-    diffpush = "!f(){ git diff `git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
-    diffpushf = "!f(){ git log --stat HEAD ^`git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
+    # last diff
+    dl = "!git ll -1"
+    dlc = diff --cached HEAD^
+
+    #diffpush = "!f(){ git diff `git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
+    #diffpushf = "!f(){ git log --stat HEAD ^`git rev-parse --abbrev-ref --symbolic-full-name @{u}`; };f"
 
     #list modified files in last commit
     df = "!git ll -1"
@@ -104,7 +131,7 @@
     # up = safe update. fast-forward only
     up = "!git remote update -p; git merge --ff-only @{u}"
 
-    # reflog 
+    # reflog
     reflog1 = reflog --pretty='%h %<|(20)%gd %cd | %gs'
     reflog2 = reflog --format='%C(auto)%h %gd %C(green)%>|(33)%cr%C(reset) | %gs (%s)'
 
@@ -120,10 +147,16 @@
     uncommitn = !sh -c 'git reset --soft HEAD~$1' -
 
     # USAGE: git review $LOCAL_BRANCH_NAME $MR_NUMBER
-    review = !sh -c 'git fetch origin merge-requests/$2/head:review-$1 && git checkout review-$1' -
+    # will check out a merge request branch, and then give it the name you provide.
+    # Then typically you will do a `git uncommitn X` where X is the number of commits in the branch
+    review = !sh -c 'git fetch origin merge-requests/$2/head:review-$2-$1 && git checkout review-$2-$1' -
 
     # pretty print reflog with timestamp
     rl = reflog --pretty=reflog
+
+    # get the changecount from the main branch
+  changecount = rev-list --count --no-merges HEAD ^origin/main
+  cc = changecount
 
 [pretty]
     reflog = %C(auto)%h %<|(20)%gd %C(green)%cr%C(reset) %gs (%s)
@@ -135,7 +168,7 @@
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
 [mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
 [difftool "meld"]
   trustExitCode = true
@@ -156,3 +189,7 @@
 	required = true
 [init]
 	defaultBranch = main
+[url "git@cd.splunkdev.com:"]
+	insteadof = https://cd.splunkdev.com/
+[user]
+	name = Jud Dagnall
