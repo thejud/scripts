@@ -1,0 +1,4 @@
+# table2long: convert db table output to long format
+#
+
+mlr --imarkdown --oxtab cat "$@"

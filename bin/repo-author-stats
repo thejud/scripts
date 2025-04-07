@@ -1,0 +1,5 @@
+git ls-files > /tmp/git.files
+for f in `cat /tmp/git.files` ; do
+  git blame -w --line-porcelain $f | awk '{if ($1 == "author" && $0 !~ /^[[:space:]]*$/) { print $2; }} ' >> /tmp/author_lines
+done
+cat /tmp/author_lines | distribution.py --size=large

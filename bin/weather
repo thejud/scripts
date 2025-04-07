@@ -1,0 +1,7 @@
+place="${1:-glider+drive}"
+view="${2:-0}"
+
+url="wttr.in/$place?$view"
+
+echo "curl $url"
+curl "$url" 

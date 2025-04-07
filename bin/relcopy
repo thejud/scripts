@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""
+NAME:
+
+  relcopy:
+
+DESCRIPTION:
+
+
+AUTHOR:
+
+  Jud Dagnall <jdagnall@splunk.com>
+
+EXAMPLES:
+
+    # common usage:
+    xcopy 
+
+"""
+
+from __future__ import print_function
+from pathlib import Path
+
+import argparse
+import json
+import logging
+import shutil
+import sys
+
+LOG_FORMAT='%(asctime)s %(levelname)s - %(message)s'
+
+
+def parse_args(args=None):
+    desc=""
+    p = argparse.ArgumentParser(description=desc)
+    p.add_argument("-n" "--dry", action="store_true", help="Dry run.")
+    p.add_argument("source", help="file to copy")
+    #p.add_argument('', help="default: %(default)s", default='')
+  
+    # accept arguments as a param, so we
+    # can import and run this module with a commandline-like
+    # syntax.
+    if args is None: 
+        args = sys.argv[1:]
+    return p.parse_args(args)
+
+
+def run(opts):
+    logging.debug("starting")
+    SRC_ROOT=Path("~/s/securitymain").expanduser().resolve()
+    DEST_ROOT=Path("~/s/ba-ml/models").expanduser().resolve()
+
+    src = opts.source.resolve()
+    relative = 
+    target = pa 
+
+
+
+
+if __name__ == '__main__':
+    opts = parse_args(sys.argv[1:])
+    logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+    run(opts)

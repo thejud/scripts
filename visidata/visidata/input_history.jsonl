@@ -1,0 +1,17 @@
+{"type": "expr", "input": "userUidName - userUuidCount", "n": 1}
+{"type": "expr", "input": "round(userUuidCount*100/(userUidName - userUuidCount))", "n": 1}
+{"type": "expr", "input": "round(userUuidCount/(userUidName - userUuidCount))", "n": 1}
+{"type": "regex-split", "input": "/", "n": 1}
+{"type": "expr", "input": "text_frozen_re[-1]", "n": 1}
+{"type": "expr", "input": "text_frozen_re[-2]", "n": 1}
+{"type": "regex", "input": "1007", "n": 1}
+{"type": "regex_flags", "input": "I", "n": 1}
+{"type": "regex", "input": "1010", "n": 1}
+{"type": "longname", "input": "open-file", "n": 1}
+{"type": "filename", "input": "event_counts_by_type_tenant.csv", "n": 1}
+{"type": "aggregators", "input": "sum", "n": 1}
+{"type": "regex", "input": "eastern|valley", "n": 1}
+{"type": "expr", "input": "log10(numEvents_sum)", "n": 1}
+{"type": "expr", "input": "'%.2E' % numEvents_sum", "n": 1}
+{"type": "expr", "input": "'{:,}'.format(numEvents_sum)", "n": 1}
+{"type": "filename", "input": "mh_event_type_counts_by_t_and_e.tsv", "n": 1}

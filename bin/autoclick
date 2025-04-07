@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# set up a simple repeater pipeline using cliclick
+
+
+
+PARAMS=""
+WAIT_MS=2000
+INTERVAL_MS=20
+while (( "$#" )); do
+  case "$1" in
+    -a|--my-boolean-flag)
+      MY_FLAG=0
+      shift
+      ;;
+    -c|--count)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        count=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -w|--wait)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        WAIT_MS=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -i|--interval)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        INTERVAL_MS="-w $2"
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      exit 1
+      ;;
+    *) # preserve positional arguments
+      PARAMS="$PARAMS $1"
+      shift
+      ;;
+  esac
+done
+# set positional arguments in their proper place
+
+eval set -- "$PARAMS"
+
+pipe="/tmp/autoclick_pipe"
+rm -f "$pipe"  # clean it up, in case we interrupted previous run
+mkfifo "$pipe"
+
+# set up cliclick to listen for input on our pipe
+cat -u "$pipe" | cliclick $INTERVAL_MS -f - &
+clickpid="$!"
+
+echo "writing to pipe" > /dev/stderr
+(
+  echo c:700,300
+  if [ -n "$wait" ]; then echo "w:$wait" ; fi
+
+  if [ -z "$count" ]; then
+    yes "$@" | cat -u
+  else
+    yes "$@" | head -"$count"
+  fi
+) | tee /tmp/pipelog > "$pipe"
+
+rm "$pipe"
+
+exit 0

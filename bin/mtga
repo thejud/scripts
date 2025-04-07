@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+from pathlib import Path
+
+import argparse
+import datetime
+import os
+import re
+import sys
+import time
+
+p = argparse.ArgumentParser()
+p.add_argument("-e", "--edit", action='store_true')
+p.add_argument("-s", "--stats", action='store_true')
+p.add_argument("result", nargs='?')
+p.add_argument("extra", nargs='*')
+opts = p.parse_args()
+
+stats=Path("~/Dropbox/mtg/stats.tsv").expanduser()
+
+if opts.edit:
+    cmd = f"vim {stats}"
+    print(f"opening {stats}")
+    os.system(cmd)
+    sys.exit()
+
+if opts.stats:
+    wins = 0
+    played = 0
+    other = ''
+    for i , line in  enumerate(open(stats)):
+        if not line.strip():
+            continue
+        fields = line.split()
+        if len(fields) < 3:
+            print(f"bad line[{i}]: {fields}")
+            sys.exit()
+        else:
+            result = fields[1]
+        played += 1
+        if 'w' in  result:
+            wins += 1
+        elif 'l' not in result:
+            print(f"error: {result} in {line.strip()}")
+        ratio = round(100.0*wins/played, 1)
+    print(f"result: played={played} wins={wins} ratio={ratio:.1f}%")
+    sys.exit()
+
+
+ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+with open(stats, "a") as fh:
+    level = opts.extra.pop(0)
+    opp_deck = opts.extra.pop(0)
+    summary = " ".join(opts.extra)
+
+    print("\t".join([ts, opts.result, level, opp_deck, summary]), file=fh)
+

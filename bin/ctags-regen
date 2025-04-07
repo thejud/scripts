@@ -1,0 +1,2 @@
+ctags --tag-relative=yes -R -f ./.git/tags .
+

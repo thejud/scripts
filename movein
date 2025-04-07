@@ -1,0 +1,31 @@
+# first install homebrew
+
+# standard utils
+
+brew install jq
+brew install pbcopy
+brew install rename
+brew install tree
+
+
+# gnu version of many tools
+brew install coreutils findutils gnu-tar gnu-sed gawk gnutls gnu-indent gnu-getopt grep
+
+brew install coreutils
+brew install parallel
+brew install moreutils --without-parallel --force
+# you may need to re-link it
+
+# data tools
+
+brew install datamash
+pip install csvcut
+pip install visidata
+
+mkdir -f ~/s
+git clone https://github.com/hjmangalam/scut ~/s/scut
+
+# audio/video tools
+brew install ffmpeg --with-fdk-aac --with-tools
+
+
