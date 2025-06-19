@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# gcx - Git commit with ticket ID prefix
+#
+# Extracts ticket ID from current branch name and prefixes commit message.
+# 
+# Usage: gcx <commit message>
+#
+# Example:
+#   On branch "TEA-123-fix-bug", running:
+#     gcx added new feature
+#   Creates commit message:
+#     "TEA-123 added new feature"
+#
+# Ticket ID format: \w+-\d+ (e.g., TEA-123, JIRA-456, ABC-789)
+
+# Get current branch name
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Extract ticket ID from branch name using regex \w+-\d+
+TICKET=$(echo "$BRANCH" | grep -o -E '\w+-\d+' | head -1)
+
+# Check if ticket ID was found
+if [ -z "$TICKET" ]; then
+    echo "Error: No ticket ID found in branch name '$BRANCH'"
+    echo "Expected format: TICKET-123 (e.g., TEA-123, JIRA-456)"
+    exit 1
+fi
+
+# Concatenate all arguments with spaces
+MESSAGE="$*"
+
+# Check if message is provided
+if [ -z "$MESSAGE" ]; then
+    echo "Error: No commit message provided"
+    echo "Usage: gcx <commit message>"
+    exit 1
+fi
+
+# Create commit with ticket ID prefix
+git commit -m "$TICKET $MESSAGE"
