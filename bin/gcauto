@@ -1,0 +1,14 @@
+#!/bin/bash
+
+prompt="
+Look at the staged git changes and create a summarizing git commit message.
+Keep the title short and concise.
+Do not include mention of claude or anthropic.
+Only response with the message and no affirmation.
+If there are no stagged changes, response with the empty string.
+"
+msg=$(claude --model sonnet -p "$prompt")
+if [ -n "$msg" ]; then
+    echo "$msg" > /dev/sterr
+    git commit -m "$msg"
+fi

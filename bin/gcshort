@@ -1,6 +1,10 @@
 prompt="
 Look at the staged git changes and create a summarizing git title.
-Only response with the title and no affirmation.
+Only respond with the title and no affirmation.
+If there are no changes, respond with the empty string.
 "
-msg=$(claude -model sonnet -p "$prompt")
-git commit -m "$msg"
+msg=$(claude --model sonnet -p "$prompt")
+if [ -n "$msg" ]; then
+    echo "$msg" > /dev/sterr
+    git commit -m "$msg"
+fi
