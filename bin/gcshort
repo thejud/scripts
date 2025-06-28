@@ -1,0 +1,6 @@
+prompt="
+Look at the staged git changes and create a summarizing git title.
+Only response with the title and no affirmation.
+"
+msg=$(claude -model sonnet -p "$prompt")
+git commit -m "$msg"
