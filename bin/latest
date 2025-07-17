@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# latest - list most recently modified files in a directory tree
+#
+# SYNOPSIS
+#     latest [-n num] [directory]
+#
+# DESCRIPTION
+#     Recursively finds and lists files sorted by modification time,
+#     excluding the .git directory.
+#
+# OPTIONS
+#     -n num    Number of files to display (default: 10)
+#     directory Directory to search (default: current directory)
+#
+# EXAMPLES
+#     latest              # List 10 most recent files in current directory
+#     latest -n 20        # List 20 most recent files in current directory
+#     latest /tmp         # List 10 most recent files in /tmp
+#     latest -n 5 /tmp    # List 5 most recent files in /tmp
+
+# Default values
+NUM_ENTRIES=10
+DIR="."
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n)
+            NUM_ENTRIES="$2"
+            shift 2
+            ;;
+        *)
+            DIR="$1"
+            shift
+            ;;
+    esac
+done
+
+# Find all files recursively (excluding .git) and show most recently modified
+find "$DIR" -type f -not -path "*/.git/*" -print0 | xargs -0 ls -lt | head -n "$NUM_ENTRIES"
