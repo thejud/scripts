@@ -1,4 +1,4 @@
-#!/Volumes/xdrive/juddagnall/miniconda3/envs/data/bin/python
+#!/usr/bin/env python
 # https://github.com/mira-miracoli/data_hacks/blob/66089bb4fd9db439754d83425a6455f60213896f/data_hacks/histogram.py
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
