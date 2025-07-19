@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# Default directories
+INPUT_DIR="$HOME/Downloads"
+OUTPUT_DIR="$(pwd)"
+DRY_RUN=false
+COPY_MODE=false
+
+# Help function
+show_help() {
+    echo "Usage: getit [-i input_dir] [-o output_dir] [-c] [-n] [-h]"
+    echo "Move the latest file from input directory to output directory"
+    echo ""
+    echo "Options:"
+    echo "  -i DIR    Input directory (default: ~/Downloads)"
+    echo "  -o DIR    Output directory (default: current directory)"
+    echo "  -c        Copy mode (copy instead of move)"
+    echo "  -n        Dry-run mode (show what would be done without executing)"
+    echo "  -h        Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  getit                           # Move latest from ~/Downloads to current dir"
+    echo "  getit -i /tmp/in -o /tmp/out    # Move latest from /tmp/in to /tmp/out"
+    echo "  getit -c                        # Copy latest instead of moving"
+    echo "  getit -n                        # Show what would be moved without doing it"
+}
+
+# Parse command line arguments
+while getopts "i:o:cnh" opt; do
+    case $opt in
+        i)
+            INPUT_DIR="$OPTARG"
+            ;;
+        o)
+            OUTPUT_DIR="$OPTARG"
+            ;;
+        c)
+            COPY_MODE=true
+            ;;
+        n)
+            DRY_RUN=true
+            ;;
+        h)
+            show_help
+            exit 0
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
+# Resolve symlinks for input directory
+INPUT_DIR="$(cd "$INPUT_DIR" 2>/dev/null && pwd -P)" || INPUT_DIR="$INPUT_DIR"
+
+# Check if input directory exists
+if [ ! -d "$INPUT_DIR" ]; then
+    echo "Error: Input directory '$INPUT_DIR' does not exist" >&2
+    exit 1
+fi
+
+# Resolve symlinks for output directory if it exists
+if [ -d "$OUTPUT_DIR" ]; then
+    OUTPUT_DIR="$(cd "$OUTPUT_DIR" 2>/dev/null && pwd -P)" || OUTPUT_DIR="$OUTPUT_DIR"
+fi
+
+# Check if output directory exists, create if it doesn't
+if [ ! -d "$OUTPUT_DIR" ]; then
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY-RUN] Would create output directory: $OUTPUT_DIR"
+    else
+        echo "Creating output directory: $OUTPUT_DIR"
+        mkdir -p "$OUTPUT_DIR"
+    fi
+fi
+
+# Find the latest file in the input directory
+# Use stat -f for macOS compatibility
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    LATEST_FILE=$(find "$INPUT_DIR" -maxdepth 1 -type f -exec stat -f "%m %N" {} \; 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2-)
+else
+    LATEST_FILE=$(find "$INPUT_DIR" -maxdepth 1 -type f -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2-)
+fi
+
+# Check if any files were found
+if [ -z "$LATEST_FILE" ]; then
+    echo "Error: No files found in '$INPUT_DIR'" >&2
+    exit 1
+fi
+
+# Get just the filename for the copy
+FILENAME=$(basename "$LATEST_FILE")
+
+# Move or copy the file
+if [ "$DRY_RUN" = true ]; then
+    if [ "$COPY_MODE" = true ]; then
+        echo "[DRY-RUN] Would copy: $LATEST_FILE -> $OUTPUT_DIR/$FILENAME"
+    else
+        echo "[DRY-RUN] Would move: $LATEST_FILE -> $OUTPUT_DIR/$FILENAME"
+    fi
+else
+    if [ "$COPY_MODE" = true ]; then
+        echo "Copying: $LATEST_FILE -> $OUTPUT_DIR/$FILENAME"
+        cp "$LATEST_FILE" "$OUTPUT_DIR/"
+        
+        if [ $? -eq 0 ]; then
+            echo "Successfully copied latest file: $FILENAME"
+        else
+            echo "Error: Failed to copy file" >&2
+            exit 1
+        fi
+    else
+        echo "Moving: $LATEST_FILE -> $OUTPUT_DIR/$FILENAME"
+        # Try to move directly first
+        mv "$LATEST_FILE" "$OUTPUT_DIR/" 2>/dev/null
+        
+        if [ $? -eq 0 ]; then
+            echo "Successfully moved latest file: $FILENAME"
+        else
+            # If direct move fails (likely cross-filesystem), use copy+unlink
+            echo "Cross-filesystem move detected, using copy+unlink..."
+            cp "$LATEST_FILE" "$OUTPUT_DIR/"
+            
+            if [ $? -eq 0 ]; then
+                rm "$LATEST_FILE"
+                if [ $? -eq 0 ]; then
+                    echo "Successfully moved latest file: $FILENAME"
+                else
+                    echo "Warning: File copied but original could not be removed: $LATEST_FILE" >&2
+                    exit 1
+                fi
+            else
+                echo "Error: Failed to copy file during move operation" >&2
+                exit 1
+            fi
+        fi
+    fi
+fi
