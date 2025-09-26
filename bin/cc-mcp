@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Simple MCP server manager for Claude Code
+# Usage: cc-mcp <server> [-x]
+#   -x: remove server
+#   all: perform operation on all servers
+
+server="$1"
+remove_flag="$2"
+
+if [ -z "$server" ]; then
+    echo "Usage: cc-mcp <server|all> [-x]"
+    echo "Supported servers: puppeteer, playwright, all"
+    exit 1
+fi
+
+# Function to manage a single server
+manage_server() {
+    local srv="$1"
+    local remove="$2"
+
+    case "$srv" in
+        puppeteer)
+            if [ "$remove" = "-x" ]; then
+                echo "Removing puppeteer..."
+                claude mcp remove puppeteer
+            else
+                echo "Adding puppeteer..."
+                claude mcp add puppeteer -s user -- npx -y @modelcontextprotocol/server-puppeteer
+            fi
+            ;;
+        playwright)
+            if [ "$remove" = "-x" ]; then
+                echo "Removing playwright..."
+                claude mcp remove playwright
+            else
+                echo "Adding playwright..."
+                claude mcp add playwright -s user -- npx --offline @playwright/mcp@latest
+            fi
+            ;;
+    esac
+}
+
+case "$server" in
+    all)
+        echo "Processing all MCP servers..."
+        manage_server "puppeteer" "$remove_flag"
+        manage_server "playwright" "$remove_flag"
+        ;;
+    puppeteer|playwright)
+        manage_server "$server" "$remove_flag"
+        ;;
+    *)
+        echo "Error: Unsupported server '$server'"
+        echo "Supported servers: puppeteer, playwright, all"
+        exit 1
+        ;;
+esac
