@@ -1,0 +1,12 @@
+#!/bin/bash
+#  Left shift the contents of the clipboard.
+
+set -euf -o pipefail
+
+TMPOUT=/tmp/lshift.$$
+
+pbpaste | lshift > "$TMPOUT"
+cat $TMPOUT | pbcopy
+
+rm -f "$TMPOUT"
+
